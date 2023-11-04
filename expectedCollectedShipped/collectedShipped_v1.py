@@ -13,25 +13,15 @@ if __name__ == "__main__":
     # Connect to SQL server to error handling
     # Use below connection string when running in your IDE
     cnex = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};'
-                          'Server=DCT-SQLQA-01;Database=InfoDB;'
-                          'Trusted_Connection=yes;')
-    # Use below connection string when deploying
-    # cnex = pyodbc.connect('DRIVER={FreeTDS};'
-    #                      'Server=DCT-SQL-01;'
-    #                      'Port=1433;Database=InfoDB;UID=immunetolerance\\dct-sqlprod-01-sql-s;'
-    #                      'PWD=Fb59roVytFFZAcMbHAdw;TDS_Version=8.0')
+                          'Server=<ServerName>;Database=<DatabaseName>;'
+                          'Trusted_Connection=<ConnectionType>;')
     cursor = cnex.cursor()
 
     # Connect to DIVE and run query
     # Use below connection string when running in your IDE
     cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};'
-                          'Server=DCT-SQL-01;Database=DAVE;'
-                          'Trusted_Connection=yes;')
-    # Use below connection string when deploying
-    # cnxn = pyodbc.connect('DRIVER={FreeTDS};'
-    #                      'Server=DCT-SQL-01;'
-    #                      'Port=1433;Database=DAVE;UID=immunetolerance\\dct-sqlprod-01-sql-s;'
-    #                      'PWD=Fb59roVytFFZAcMbHAdw;TDS_Version=8.0')
+                          'Server=<ServerName>;Database=<DatabaseName>;'
+                          'Trusted_Connection=<ConnectionType>;')
 
     shipments = {}
     collections = {}
