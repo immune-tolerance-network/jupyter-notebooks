@@ -11,7 +11,7 @@ from datetime import timedelta
 import datetime as datetime
 
 if __name__ == "__main__":
-    print("Starting...")
+    print("Starting expectedCollected_v1...")
     # Connect to SQL server to error handling
     # Use below connection string when running in your IDE
     cnex = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};'
@@ -417,6 +417,7 @@ if __name__ == "__main__":
         # %%
         zero_df.reset_index(drop=True)
         zero_df["studynum"] = "ITN080AI"
+        zero_df["LastUpdateDate"] = datetime.datetime.now()
 
         # %%
 
@@ -428,9 +429,9 @@ if __name__ == "__main__":
         crsr.fast_executemany = True
         insert_string = '''INSERT INTO [DAVE].[input].[pythonExpectedCollected] (
                         [Study Number],[Participant ID],[Visit Number],[Specimen Type],
-                        [Visit Date],[STS Cohort],[Site Code],[Days Overdue],[Message]
-                        ) VALUES (?,?,?,?,?,?,?,?,?)'''
-        tuples = [(i[10], i[0], i[1], i[2], i[4], i[5], i[6], i[8], i[9])
+                        [Visit Date],[STS Cohort],[Site Code],[Days Overdue],[Message],[LastUpdatedDate]
+                        ) VALUES (?,?,?,?,?,?,?,?,?,?)'''
+        tuples = [(i[10], i[0], i[1], i[2], i[4], i[5], i[6], i[8], i[9], i[11])
                   for i in zero_df.values.tolist()]
         crsr.executemany(insert_string, tuples)
         crsr.commit()

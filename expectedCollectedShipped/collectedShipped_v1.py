@@ -9,7 +9,7 @@ import datetime as datetime
 
 
 if __name__ == "__main__":
-    print("Starting...")
+    print("Starting collectedShipped_v1...")
     # Connect to SQL server to error handling
     # Use below connection string when running in your IDE
     cnex = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};'
@@ -82,8 +82,8 @@ if __name__ == "__main__":
         shipped_barcodes = shipments["barcode"].unique()
 
         result_df = pd.DataFrame(columns=['studynum', 'sitecode', 'Participant', 'KitBarcode', 'CollectionDate',
-                                          'tubetype', 'specimentype', 'barcode', 'visitnum', 'cohort', 'message',
-                                          'days overdue', 'alert'])
+                                          'tubetype', 'specimentype', 'barcode', 'visitnum', 'cohort',
+                                          'message', 'days overdue', 'alert', 'LastUpdatedDate'])
 
         barcode_pattern = re.compile(r'^\d\d\d\d\d\d-...?$')
 
@@ -111,6 +111,7 @@ if __name__ == "__main__":
                 message_components.append(message)
                 message_components.append(abs(days_since.days))
                 message_components.append(alert)
+                message_components.append(datetime.datetime.now())
                 result_df.loc[len(result_df)] = message_components
 
                 # print(message_components)
@@ -128,18 +129,19 @@ if __name__ == "__main__":
 
         # %%
         crsr = cnxn.cursor()
-        crsr.execute('''DELETE FROM input.pythonCollectedShipped WHERE [Study Number]='ITN080AI' ''')
+        crsr.execute('''DELETE FROM [DAVE].[input].[pythonCollectedShipped] WHERE [Study Number]='ITN080AI' ''')
         crsr.commit()
         crsr.fast_executemany = True
 
         insert_string = '''INSERT INTO [DAVE].[input].[pythonCollectedShipped]
          (
             [Study Number],[Site Code],[Participant ID],[Kit Barcode],[Collection Date],[Tube Type],
-            [Specimen Type],[Barcode],[Visit Number],[STS Cohort],[Message],[Days Overdue],[Alerts]
+            [Specimen Type],[Barcode],[Visit Number],[STS Cohort],[Message],[Days Overdue],[Alerts],
+            [LastUpdatedDate]
             ) VALUES 
-            (?,?,?,?,?,?,?,?,?,?,?,?,?)'''
+            (?,?,?,?,?,?,?,?,?,?,?,?,?,?)'''
 
-        tuples = [(i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7], i[8], i[9], i[10], i[11], i[12])
+        tuples = [(i[0], i[1], i[2], i[3], i[4], i[5], i[6], i[7], i[8], i[9], i[10], i[11], i[12], i[13])
                   for i in result_df.values.tolist()]
 
         crsr.executemany(insert_string, tuples)
@@ -174,7 +176,6 @@ if __name__ == "__main__":
                   datetime.datetime.now().isoformat().encode('utf-8'),
                   str(datetime.datetime.now())[:19].replace('-', '/'))
         cursor.execute("{CALL [dbo].[SSIS_Process_LogHistory] (?,?,?,?,?,?,?,?,?,?)}", params)
-        cnex.commit()
         cnex.commit()
 
     cnxn.close()
