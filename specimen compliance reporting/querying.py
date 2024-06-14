@@ -34,6 +34,7 @@ def get_lv_data(pd,cnxn,ct, cohort):
 
         output_df["specimentype"] = output_df.apply(lambda x:specify_sample_type(x["barcode"]),axis = 1)
 
+
     # custom data cleaning for graduate:
     if ct.studynum == "ITN084AD":
         def assign_visit(kit,vis):
@@ -70,10 +71,21 @@ def get_lv_data(pd,cnxn,ct, cohort):
 # Get Rho data
 def get_rho_data(pd,cnxn,ct,cohort):
 
-
     # If there is/n't multiple cohorts for the study
-    if ct.cohort != None:
-        rho_query = '''SELECT DISTINCT a.[ADINFC STUDYID],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID],c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening]
+    if (ct.cohort != None) and (ct.studynum != 'ITN089ST'):
+        if ct.studynum == "ITN080AI":
+            rho_query = '''SELECT DISTINCT a.[ADINFC STUDYID],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID],c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening]
+                        FROM   [rpt].[Participant] a
+                        JOIN   [rpt].[ParticipantActivity] b
+                            ON     a.[ParticipantKey] = b.[ParticipantKey]
+                            AND    b.[Activity] IN ('Visit','UnscheduledVisit')
+                        JOIN   [rpt].[Visit] c
+                            ON     b.[VisitKey] = c.[VisitKey]
+                        JOIN   [rpt].[Site] d
+                            ON     a.[SiteKey] = d.[SiteKey]
+                        WHERE  a.[ADINFC STUDYID] = '{}' AND Cohort = 'Part {}' '''.format(ct.studynum,cohort)
+        else:
+            rho_query = '''SELECT DISTINCT a.[ADINFC STUDYID],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID],c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening]
                     FROM   [rpt].[Participant] a
                     JOIN   [rpt].[ParticipantActivity] b
                         ON     a.[ParticipantKey] = b.[ParticipantKey]
@@ -82,7 +94,7 @@ def get_rho_data(pd,cnxn,ct,cohort):
                         ON     b.[VisitKey] = c.[VisitKey]
                     JOIN   [rpt].[Site] d
                         ON     a.[SiteKey] = d.[SiteKey]
-                    WHERE  a.[ADINFC STUDYID] = '{}' AND Cohort = 'Part {}' '''.format(ct.studynum,cohort)
+                    WHERE  a.[ADINFC STUDYID] = '{}' AND Cohort = '{}' '''.format(ct.studynum,cohort)
     else:
         rho_query = '''SELECT DISTINCT a.[ADINFC STUDYID],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID], c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening]
                     FROM   [rpt].[Participant] a
@@ -94,6 +106,9 @@ def get_rho_data(pd,cnxn,ct,cohort):
                     JOIN   [rpt].[Site] d
                         ON     a.[SiteKey] = d.[SiteKey]
                     WHERE  a.[ADINFC STUDYID] = '{}'  '''.format(ct.studynum)
+
+
+
     # Turn query results into a dataframe
     output_df = pd.read_sql(rho_query,cnxn)
 
@@ -105,6 +120,25 @@ def get_rho_data(pd,cnxn,ct,cohort):
         else:
             return pid
     output_df["Participant ID"] = output_df.apply(lambda x: fix_no_pid_rho(x["RHO Screening Identifier"],x["Participant ID"]),axis = 1)
+
+    # For ADAPT: specify cohort in Rho data
+    if ct.studynum == 'ITN089ST':
+        def fix_rho_cohort(rho_si):
+
+            pid_cohort_suffix = rho_si[-1]
+
+            if pid_cohort_suffix == "A":
+                return "Ancillary"
+            elif pid_cohort_suffix == "D":
+                return "Donor"
+            else:
+                return "Recipient"
+        output_df = output_df[output_df["Cohort"] == cohort]
+        if not output_df.empty:
+            output_df["Cohort"] = output_df.apply(lambda x: fix_rho_cohort(x["RHO Screening Identifier"]),axis = 1)
+        
+
+
     return output_df
 
 def get_visit_info(pd,cnxn,ct):

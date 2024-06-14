@@ -40,6 +40,7 @@ def create_result_df(pd,ct,choose_cohort,rho_records,lv_data,visit_info):
         
         number_of_recorded_visits.append(pids_with_recorded_visit)
 
+
         #print(spectype + " | " + visnum + ": " + str(pids_at_least_1_tube_for_this_spec_type_for_this_vis))
 
         return pids_at_least_1_tube_for_this_spec_type_for_this_vis, pids_with_recorded_visit,round(percent)
@@ -47,3 +48,18 @@ def create_result_df(pd,ct,choose_cohort,rho_records,lv_data,visit_info):
     result[["Number at least 1 collected","Number of recorded visits","Percent"]] = result.apply(lambda x: find_collection_stats(x["Study"],x["Visit Number"],x["Sample Type"]),axis = 1,result_type="expand")
     
     return result
+
+def remove_exceptions(np,table,ct,chrt):
+    if chrt != None:
+        cohort_exceptions = ct.exceptions[chrt]
+        for except_visit in cohort_exceptions:
+            exception_indicies = table.index[(table["Sample Type"] == except_visit[0]) & (table["Visit Number"] == except_visit[1])].tolist()
+            # table[(table["Sample Type"] == except_visit[0]) & (table["Visit Number"] == except_visit[1])]["Percent"] = np.nan
+            table.loc[exception_indicies[0],["Percent"]] = np.nan
+    else:
+        for except_visit in ct.exceptions:
+            exception_indicies = table.index[(table["Sample Type"] == except_visit[0]) & (table["Visit Number"] == except_visit[1])].tolist()
+            # table[(table["Sample Type"] == except_visit[0]) & (table["Visit Number"] == except_visit[1])]["Percent"] = np.nan
+            table.loc[exception_indicies[0],["Percent"]] = np.nan
+    return table
+        
