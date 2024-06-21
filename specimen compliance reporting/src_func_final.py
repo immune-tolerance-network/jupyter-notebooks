@@ -114,45 +114,60 @@ if __name__ == "__main__":
     try:
         # For each clinical trial...
         for trial in clinical_trials:
+            # Get a list of sites:
+            sites = querying.get_sites(pd,cnxn,trial)
+            # Get data from LV:
+            lv_data = querying.get_lv_data(pd,cnxn,trial)
+            # Get data from RHO:
+            rho_data = querying.get_rho_data(pd,cnxn,trial)  
+            # Get visit ordinals, etc. from server
+            visit_info = querying.get_visit_info(pd,cnxn,trial)
+            # Make a temporary dataframe we will concatenate to the output dataframe defined above
+            result = pd.DataFrame(columns = ["Study",'site',"Cohort","Visit Number","Visit Ordinal","DaysPostScreening","Sample Type",
+                                             "Number at least 1 collected","Number of recorded visits","Percent"])
+
             # If the trial has a list of cohorts...
             if type(trial.cohort) == list:
-                # For each cohort...
+                # Make a list of tuples that store all the possible sites, cohort, and visit combinations
+                site_cohort_visit_list = []
+                for s in sites:
+                    for c in trial.cohort:
+                        for v in trial.visits[c]:
+                            site_cohort_visit_list.append((s,c,v))
+                # For each possible site, cohort, and visit combination...
+                for s_c_v in site_cohort_visit_list:
+                    # Analyze the data
+                    result_to_add = create_result_df.create_result_df(pd,trial,s_c_v[1],rho_data,lv_data,visit_info,s_c_v[0],s_c_v[2])
+                    # Concatenate the current dataframe to the result dataframe defined in the for loop above
+                    result = pd.concat([result,result_to_add])
+                # Reset the index of the result dataframe
+                result.reset_index(inplace=True,drop = True)
+                # For each cohort in the trial...
                 for chrt in trial.cohort:
-                    # Get data from LV
-                    lv_data = querying.get_lv_data(pd,cnxn,trial,chrt)
-                    # Get RHO data
-                    rho_data = querying.get_rho_data(pd,cnxn,trial,chrt)
-                    # Get visit ordinals, etc. from server
-                    visit_info = querying.get_visit_info(pd,cnxn,trial)
-                    # If we are analyzing the first cohort:
-                    if trial.cohort[0] == chrt:
-                        # Analyze the data
-                        result = create_result_df.create_result_df(pd,trial,chrt,rho_data,lv_data,visit_info)
-                        # Remove exceptions
-                        result = create_result_df.remove_exceptions(np,result,trial,chrt)
-                    # Otherwise...
-                    else:
-                        # Analyze the data
-                        result_to_add = create_result_df.create_result_df(pd,trial,chrt,rho_data,lv_data,visit_info)
-                        # Remove exceptions
-                        result_to_add = create_result_df.remove_exceptions(np,result_to_add,trial,chrt)
-                        # Concatenate to the result DataFrame
-                        result = pd.concat([result,result_to_add])
+                    # Remove the exceptions specified in the trial object
+                    result = create_result_df.remove_exceptions(np,result,trial,chrt)
+                # Concatenate the dataframe for the trial to the overall output dataframe
+                output = pd.concat([output,result])
+
             # Otherwise if the study does not have cohorts...
             else:
-                # Get data from LV
-                lv_data = querying.get_lv_data(pd,cnxn,trial,None)
-                # Get RHO data
-                rho_data = querying.get_rho_data(pd,cnxn,trial,None)
-                # Get visit ordinals, etc. from server
-                visit_info = querying.get_visit_info(pd,cnxn,trial)
-                # Analyze the data
-                result = create_result_df.create_result_df(pd,trial,chrt,rho_data,lv_data,visit_info)
-                # Remove exceptions
+                # Make a list of tuples that contain all the possible visits a site could have
+                site_visit_list = []
+                for s in sites:
+                    for v in trial.visits:
+                        site_visit_list.append((s,v))
+                # For each possible visit at a site...
+                for s_v in site_visit_list:
+                    # Analyze the data
+                    result_to_add = create_result_df.create_result_df(pd,trial,None,rho_data,lv_data,visit_info,s_v[0],s_v[1])
+                    # Concatenate the current dataframe to the result dataframe defined in the for loop above
+                    result = pd.concat([result,result_to_add])
+                # Reset the index of the result dataframe
+                result.reset_index(inplace=True,drop = True)
+                # Remove the exceptions specified in the trial object
                 result = create_result_df.remove_exceptions(np,result,trial,None)
-            
-            # Concatenate to the result DataFrame            
-            output = pd.concat([output,result])
+                # Concatenate the dataframe for the trial to the overall output dataframe
+                output = pd.concat([output,result])      
 
         # Reset the index
         output.reset_index(inplace = True)
@@ -166,11 +181,9 @@ if __name__ == "__main__":
         output["DaysPostScreening"] = output["DaysPostScreening"].astype(str)
         output["Percent"] = output["Percent"].astype(str)
 
-        ### TEMPORARY PLACEHOLDER FOR SITE CODE ###
-        output["sitecode"] = None
-        site_column = output.pop("sitecode")
-        output.insert(5,"sitecode",site_column)
-        #########
+        # Move the site column to match the columns of the SQL table this will write to
+        site_column = output.pop("site")
+        output.insert(5,"site",site_column)
 
         # Truncate (delete all) the table
         crsr.execute('''TRUNCATE TABLE [DAVE].[input].[SiteCollectionCompliance]''')

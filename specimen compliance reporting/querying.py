@@ -1,14 +1,9 @@
 
-def get_lv_data(pd,cnxn,ct, cohort):
-    
-    lv_query = None
-    if cohort == None:
-        lv_query = '''SELECT * FROM rpt.LabVantageVisits WHERE studynum = '{}' '''.format(ct.studynum)
-    else:
-        lv_query = '''SELECT * FROM rpt.LabVantageVisits WHERE studynum = '{}' AND Cohort = '{}' '''.format(ct.studynum,cohort)
+def get_lv_data(pd,cnxn,ct):
+    lv_query = '''SELECT * FROM rpt.LabVantageVisits WHERE studynum = '{}' '''.format(ct.studynum)
     output_df = pd.read_sql(lv_query,cnxn)
 
-    output_df = output_df[['studynum',  'Participant', 'KitBarcode',
+    output_df = output_df[['studynum',  'Participant', 'KitBarcode','sitecode',
                             'CollectionDate',  'specimentype',
                             'visitnum', 'barcode', 'Sample Comment', 'Cohort', 'storagestatus',
                             'storagedisposalstatus', 'Shipping Status']]
@@ -18,7 +13,9 @@ def get_lv_data(pd,cnxn,ct, cohort):
     
     # Rename and specify sample types only for non-graduate
     #if ct.studynum != "ITN084AD" and ct.studynum != "ITN062ST":
-    if  (isinstance(ct.specimen_types,dict)): 
+
+
+    if  (isinstance(ct.specimen_types,dict)) and (len(output_df) > 0): 
         def specify_sample_type(bcde):
             # Turn the barcode into a list where the first entry is the kit and the second entry is the suffix
             bcde_components = bcde.split("-")
@@ -36,7 +33,7 @@ def get_lv_data(pd,cnxn,ct, cohort):
 
 
     # custom data cleaning for graduate:
-    if ct.studynum == "ITN084AD":
+    if (ct.studynum == "ITN084AD") and (len(output_df) > 0):
         def assign_visit(kit,vis):
             if vis == None:
                 if kit == "447410":
@@ -69,45 +66,20 @@ def get_lv_data(pd,cnxn,ct, cohort):
     return output_df
 
 # Get Rho data
-def get_rho_data(pd,cnxn,ct,cohort):
+def get_rho_data(pd,cnxn,ct):
 
     # If there is/n't multiple cohorts for the study
-    if (ct.cohort != None) and (ct.studynum != 'ITN089ST'):
-        if ct.studynum == "ITN080AI":
-            rho_query = '''SELECT DISTINCT a.[ADINFC STUDYID],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID],c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening]
-                        FROM   [rpt].[Participant] a
-                        JOIN   [rpt].[ParticipantActivity] b
-                            ON     a.[ParticipantKey] = b.[ParticipantKey]
-                            AND    b.[Activity] IN ('Visit','UnscheduledVisit')
-                        JOIN   [rpt].[Visit] c
-                            ON     b.[VisitKey] = c.[VisitKey]
-                        JOIN   [rpt].[Site] d
-                            ON     a.[SiteKey] = d.[SiteKey]
-                        WHERE  a.[ADINFC STUDYID] = '{}' AND Cohort = 'Part {}' '''.format(ct.studynum,cohort)
-        else:
-            rho_query = '''SELECT DISTINCT a.[ADINFC STUDYID],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID],c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening]
-                    FROM   [rpt].[Participant] a
-                    JOIN   [rpt].[ParticipantActivity] b
-                        ON     a.[ParticipantKey] = b.[ParticipantKey]
-                        AND    b.[Activity] IN ('Visit','UnscheduledVisit')
-                    JOIN   [rpt].[Visit] c
-                        ON     b.[VisitKey] = c.[VisitKey]
-                    JOIN   [rpt].[Site] d
-                        ON     a.[SiteKey] = d.[SiteKey]
-                    WHERE  a.[ADINFC STUDYID] = '{}' AND Cohort = '{}' '''.format(ct.studynum,cohort)
-    else:
-        rho_query = '''SELECT DISTINCT a.[ADINFC STUDYID],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID], c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening]
-                    FROM   [rpt].[Participant] a
-                    JOIN   [rpt].[ParticipantActivity] b
-                        ON     a.[ParticipantKey] = b.[ParticipantKey]
-                        AND    b.[Activity] IN ('Visit','UnscheduledVisit')
-                    JOIN   [rpt].[Visit] c
-                        ON     b.[VisitKey] = c.[VisitKey]
-                    JOIN   [rpt].[Site] d
-                        ON     a.[SiteKey] = d.[SiteKey]
-                    WHERE  a.[ADINFC STUDYID] = '{}'  '''.format(ct.studynum)
-
-
+    rho_query = '''SELECT DISTINCT a.[ADINFC STUDYID],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID],c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening],
+                    d.[Site Code]
+                FROM   [rpt].[Participant] a
+                JOIN   [rpt].[ParticipantActivity] b
+                    ON     a.[ParticipantKey] = b.[ParticipantKey]
+                    AND    b.[Activity] IN ('Visit','UnscheduledVisit')
+                JOIN   [rpt].[Visit] c
+                    ON     b.[VisitKey] = c.[VisitKey]
+                JOIN   [rpt].[Site] d
+                    ON     a.[SiteKey] = d.[SiteKey]
+                WHERE  a.[ADINFC STUDYID] = '{}' '''.format(ct.studynum)
 
     # Turn query results into a dataframe
     output_df = pd.read_sql(rho_query,cnxn)
@@ -133,10 +105,15 @@ def get_rho_data(pd,cnxn,ct,cohort):
                 return "Donor"
             else:
                 return "Recipient"
-        output_df = output_df[output_df["Cohort"] == cohort]
-        if not output_df.empty:
-            output_df["Cohort"] = output_df.apply(lambda x: fix_rho_cohort(x["RHO Screening Identifier"]),axis = 1)
-        
+        output_df["Cohort"] = output_df.apply(lambda x: fix_rho_cohort(x["RHO Screening Identifier"]),axis = 1)
+
+    if ct.studynum == 'ITN080AI':
+        def remove_part(chrt):
+            if chrt == "Part A":
+                return "A"
+            elif chrt == "Part B":
+                return "B"
+        output_df["Cohort"] = output_df.apply(lambda x: remove_part(x["Cohort"]),axis = 1)
 
 
     return output_df
@@ -152,3 +129,33 @@ def get_visit_info(pd,cnxn,ct):
     output_df = pd.read_sql(visit_query,cnxn)
 
     return output_df
+
+def get_sites(pd,cnxn,ct):
+    site_query = '''SELECT DISTINCT d.[Site Code]
+                    FROM   [rpt].[Participant] a
+                    JOIN   [rpt].[ParticipantActivity] b
+                    ON     a.[ParticipantKey] = b.[ParticipantKey]
+                    AND    b.[Activity] IN ('Visit','UnscheduledVisit')
+                    JOIN   [rpt].[Visit] c
+                    ON     b.[VisitKey] = c.[VisitKey]
+                    JOIN   [rpt].[Site] d
+                    ON     a.[SiteKey] = d.[SiteKey]
+                    WHERE  a.[ADINFC STUDYID] = '{0}' 
+                    UNION
+                    SELECT DISTINCT sitecode FROM rpt.LabVantageVisits WHERE studynum = '{0}' '''.format(ct.studynum)
+    output_df = pd.read_sql(site_query,cnxn)
+    site_list = output_df["Site Code"].tolist()
+    if None in site_list:
+        site_list.remove(None)
+    return site_list
+
+# def get_site_cohort_visit(pd,cnxn,ct):
+#     lv_query = ''' SELECT DISTINCT sitecode,visitnum FROM DAVE.rpt.vw_LabVantageVisits
+#                    WHERE StudyNum = '{}' '''.format(ct.studynum)
+#     lv = pd.read_sql(lv_query,cnxn)
+
+#     rho_query = ''' '''
+
+#     if ct.cohort == None:
+#         lv.drop(columns = ["cohort"],inplace = True)
+#         rho.drop(columns = ["Cohort"],inplace = True)
