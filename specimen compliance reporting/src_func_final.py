@@ -89,7 +89,7 @@ if __name__ == "__main__":
                                                "Whole Blood\nDNA Isolation":['51','52','53','54','55','56'],
                                                "Whole Blood\nGene Expression":["9A","9B"],
                                                "CSF Transfix":["21A"],
-                                               "CSF Super":["H"+"%02d" % i for i in list(range(1,49))],
+                                               "CSF Super":["J"+"%02d" % i for i in list(range(1,49))],
                                                "CSF Pellet":["J49"],
                                                "Stem Cells":["SC01","SC02"]},
                              exceptions = [("Stem Cells","0"),
