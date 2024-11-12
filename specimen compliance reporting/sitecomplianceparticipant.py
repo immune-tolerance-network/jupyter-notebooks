@@ -29,7 +29,8 @@ if __name__ == "__main__":
 
 
     # Make an empty dataframe we will append to
-    output = pd.DataFrame(columns = ["RowId","Study Number","Cohort","Visit Number","Visit Ordinal","Days Post Screening","SiteCode","ParticipantID",
+    output = pd.DataFrame(columns = [#"RowId",
+                                     "Study Number","Cohort","Visit Number","Visit Ordinal","Days Post Screening","SiteCode","ParticipantID",
                                  "Sample Type","Collected","CollectionDate"])
 
     # Create a list of trials
@@ -39,13 +40,14 @@ if __name__ == "__main__":
     try:   
         for trial in clinical_trials:
             # Create a blank output dataframe
-            output_append = pd.DataFrame(columns = ["RowId","Study Number","Cohort","Visit Number","Visit Ordinal","Days Post Screening","SiteCode","ParticipantID",
+            output_append = pd.DataFrame(columns = [#"RowId",
+                                                    "Study Number","Cohort","Visit Number","Visit Ordinal","Days Post Screening","SiteCode","ParticipantID",
                                         "Sample Type","Collected","CollectionDate"])
             # Get lv data for that trial
             lv_data =  querying.get_lv_data(pd,cnxn,trial)
         
             # Get visit information for the trial
-            visit_data = querying.get_visit_info(pd,cnxn,trial)
+            visit_data = querying.get_visit_info(np,pd,cnxn,trial)
             # Get all the pids for the trial
             rho_data = querying.get_rho_data_participant(pd,cnxn,trial)
             rho_pids = list(rho_data["Participant ID"].unique())
@@ -113,7 +115,7 @@ if __name__ == "__main__":
                         
 
 
-                        output_list = [None, # RowID
+                        output_list = [#None, # RowID
                                     trial.studynum, # Study Number
                                     chrt, # Cohort
                                     visit, # Visit Number
@@ -144,19 +146,29 @@ if __name__ == "__main__":
                 output = pd.concat([output,output_append])
             
             
-        output["LastUpdatedDate"] = datetime.now()
+        # output["LastUpdatedDate"] = datetime.now()
         crsr = cnxn.cursor()
         crsr.execute('''TRUNCATE TABLE [DAVE].[input].[SiteCollectionComplianceParticipant]''')
         crsr.commit()
         crsr.fast_executemany = True
 
-        insert_string = '''INSERT INTO [DAVE].[input].[SiteCollectionCompliance]
-                        ([Study Number],[Cohort],[Visit Number],[Visit Ordinal],[Days Post Screening],[SiteCode],[Participant ID],[Sample Type],[Collected],
-                            [CollectionDate],[LastUpdatedDate]
+        insert_string = '''INSERT INTO [DAVE].[input].[SiteCollectionComplianceParticipant]
+                        ([Study Number],
+                        [Cohort],
+                        [Visit Number],
+                        [Visit Ordinal],
+                        [Days Post Screening],
+                        [SiteCode],
+                        [Participant ID],
+                        [Sample Type],
+                        [Collected],
+                        [CollectionDate]
+                    
                         ) VALUES
-                        (?,?,?,?,?,?,?,?,?,?,?)'''
+                        (?,?,?,?,?,?,?,?,?,?)'''
         
-        tuples = [(i[1],i[2],i[3],i[4],i[5],i[6],i[7],i[8],i[9],i[10],i[11]) for i in output.values.tolist()]
+        tuples = [(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7],i[8],i[9]) for i in output.values.tolist()]
+
 
         crsr.executemany(insert_string,tuples)
         crsr.commit()

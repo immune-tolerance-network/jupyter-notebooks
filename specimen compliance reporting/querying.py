@@ -118,7 +118,7 @@ def get_rho_data(pd,cnxn,ct):
 
     return output_df
 
-def get_visit_info(pd,cnxn,ct):
+def get_visit_info(np,pd,cnxn,ct):
 
     visit_query = '''SELECT a.[Study Number],b.[Visit Number],b.[Visit Ordinal],b.[DaysPostScreening] FROM rpt.Study a
                     JOIN rpt.Visit b
@@ -127,7 +127,7 @@ def get_visit_info(pd,cnxn,ct):
                         ORDER BY [Visit Ordinal]
                     '''.format(ct.studynum)
     output_df = pd.read_sql(visit_query,cnxn)
-
+    output_df = output_df.replace({np.nan:None})
     return output_df
 
 def get_sites(pd,cnxn,ct):
