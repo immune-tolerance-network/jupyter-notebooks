@@ -16,15 +16,15 @@ if __name__ == "__main__":
 
     # Connect to SQL Server for Error Reporting
     cnex = pyodbc.connect(('DRIVER={ODBC Driver 17 for SQL Server};'
-                          'Server=<ServerName>;Database=<DatabaseName>;'
-                          'Trusted_Connection=<ConnectionType>;'))
-    
+                           'Server=<ServerName>;Database=<DatabaseName>;'
+                           'Trusted_Connection=<ConnectionType>;'))
+
     cursor = cnex.cursor()
 
     # Connect to DIVE and run queries
     cnxn = pyodbc.connect(('DRIVER={ODBC Driver 17 for SQL Server};'
-                          'Server=<ServerName>;Database=<DatabaseName>;'
-                          'Trusted_Connection=<ConnectionType>;'))
+                           'Server=<ServerName>;Database=<DatabaseName>;'
+                           'Trusted_Connection=<ConnectionType>;'))
 
     
     # A list of clinical trial objects to iterate through:
@@ -36,6 +36,7 @@ if __name__ == "__main__":
     
     try:
         # For each clinical trial...
+        errorCount = 0
         for trial in clinical_trials:
             # Get a list of sites:
             sites = querying.get_sites(pd,cnxn,trial)
@@ -44,7 +45,7 @@ if __name__ == "__main__":
             # Get data from RHO:
             rho_data = querying.get_rho_data(pd,cnxn,trial)  
             # Get visit ordinals, etc. from server
-            visit_info = querying.get_visit_info(pd,cnxn,trial)
+            visit_info = querying.get_visit_info(np,pd,cnxn,trial)
             # Make a temporary dataframe we will concatenate to the output dataframe defined above
             result = pd.DataFrame(columns = ["Study",'site',"Cohort","Visit Number","Visit Ordinal","DaysPostScreening","Sample Type",
                                              "Number at least 1 collected","Number of recorded visits","Percent"])
@@ -127,6 +128,7 @@ if __name__ == "__main__":
 
     except Exception as e:
         print("Error: ",str(e))
+        errorCount =+ 1
 
         # Log error
         '''
@@ -148,14 +150,9 @@ if __name__ == "__main__":
                   '0E984725-C51C-4BF4-9960-E1C80E27ABA0',
                   'Load_src_func_final_ToReportingServer',
                   'src_func_final ETL',
-                  str(e.__class__),
-                  str(e),
-                  datetime.datetime.now().isoformat().encode('utf-8'),
-                  str(datetime.datetime.now())[:19].replace('-', '/'))
-        cursor.execute("{CALL [dbo].[SSIS_Process_LogHistory] (?,?,?,?,?,?,?,?,?,?)}", params)
+                  errorCount,
+                  str(e))
+        cursor.execute("{CALL [dbo].[SSIS_Process_LogHistory] (?,?,?,?,?,?,?,?)}", params)
         cnex.commit()
     cnxn.close()
     print("Processing Complete. src_func_final processed")
-
-
-        
