@@ -24,6 +24,7 @@ if __name__ == "__main__":
     cnxn = pyodbc.connect(('DRIVER={ODBC Driver 17 for SQL Server};'
                           'Server=<ServerName>;Database=<DatabaseName>;'
                           'Trusted_Connection=<ConnectionType>;'))
+    
 
 
 
@@ -175,7 +176,9 @@ if __name__ == "__main__":
         crsr.close()
 
     except Exception as e:
+
         print("Error: ",str(e))
+
 
         # Log error
         '''
