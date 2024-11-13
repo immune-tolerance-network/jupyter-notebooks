@@ -44,7 +44,7 @@ if __name__ == "__main__":
             # Get data from RHO:
             rho_data = querying.get_rho_data(pd,cnxn,trial)  
             # Get visit ordinals, etc. from server
-            visit_info = querying.get_visit_info(pd,cnxn,trial)
+            visit_info = querying.get_visit_info(np,pd,cnxn,trial)
             # Make a temporary dataframe we will concatenate to the output dataframe defined above
             result = pd.DataFrame(columns = ["Study",'site',"Cohort","Visit Number","Visit Ordinal","DaysPostScreening","Sample Type",
                                              "Number at least 1 collected","Number of recorded visits","Percent"])
