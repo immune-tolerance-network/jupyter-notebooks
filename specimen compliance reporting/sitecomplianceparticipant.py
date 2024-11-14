@@ -11,20 +11,20 @@ from trials import reboot,reveal,graduate,beat_ms,vibrant,dare_aps
 
 
 if __name__ == "__main__":
-    print("Starting SRC Reporting Script (src_func_final.py)...")
+    print("Starting SRC Reporting Script (sitecomplianceparticipant.py)...")
 
     # Connect to SQL Server for Error Reporting
+    # Connect to SQL Server for Error Reporting
     cnex = pyodbc.connect(('DRIVER={ODBC Driver 17 for SQL Server};'
-                          'Server=<ServerName>;Database=<DatabaseName>;'
-                          'Trusted_Connection=<ConnectionType>;'))
-    
+                           'Server=<ServerName>;Database=<DatabaseName>;'
+                           'Trusted_Connection=<ConnectionType>;'))
+
     cursor = cnex.cursor()
 
     # Connect to DIVE and run queries
     cnxn = pyodbc.connect(('DRIVER={ODBC Driver 17 for SQL Server};'
-                          'Server=<ServerName>;Database=<DatabaseName>;'
-                          'Trusted_Connection=<ConnectionType>;'))
-    
+                           'Server=<ServerName>;Database=<DatabaseName>;'
+                           'Trusted_Connection=<ConnectionType>;'))
 
 
 
@@ -38,6 +38,7 @@ if __name__ == "__main__":
     clinical_trials = [reboot,reveal,graduate,beat_ms,vibrant,dare_aps]
     
     # For each clinical trial
+    errorCount = 0   #used for error logging to SQL
     try:   
         for trial in clinical_trials:
             # Create a blank output dataframe
@@ -178,6 +179,7 @@ if __name__ == "__main__":
     except Exception as e:
 
         print("Error: ",str(e))
+        errorCount =+ 1
 
 
         # Log error
@@ -199,12 +201,10 @@ if __name__ == "__main__":
                   'DCT-SQL-01',
                   '0E984725-C51C-4BF4-9960-E1C80E27ABA0',
                   'Load_src_func_final_ToReportingServer',
-                  'src_func_final ETL',
-                  str(e.__class__),
-                  str(e),
-                  datetime.datetime.now().isoformat().encode('utf-8'),
-                  str(datetime.datetime.now())[:19].replace('-', '/'))
-        cursor.execute("{CALL [dbo].[SSIS_Process_LogHistory] (?,?,?,?,?,?,?,?,?,?)}", params)
+                  'sitecomplianceparticipant ETL',
+                  errorCount,
+                  str(e))
+        cursor.execute("{CALL [dbo].[SSIS_Process_LogHistory] (?,?,?,?,?,?,?,?)}", params)
         cnex.commit()
     cnxn.close()
     print("Processing Complete. src_func_final processed")
