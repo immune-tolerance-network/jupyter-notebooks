@@ -137,14 +137,18 @@ if __name__ == "__main__":
 
         # For every participant that has a mechanistic visit...
         for participant in unique_pids:
+            # If there is no data for the PID in LV, skip it
+            if data_for_participant.empty == True:
+                continue
 
             # Get data specific to that participant
             data_for_participant = lv[lv["Participant"] == participant]
 
             # Get the site for the participant
-            try:
+            site_code_for_participant = None
+            if len(list(data_for_participant["sitecode"].unique())) > 0:
                 site_code_for_participant = list(data_for_participant["sitecode"].unique())[0]
-            except IndexError:
+            elif len(list(rho[(rho["Participant ID"] == participant)]["sitecode"].unique())) > 0:
                 site_code_for_participant = list(rho[(rho["Participant ID"] == participant)]["sitecode"].unique())[0]
 
             # Get all recorded visits for the participant (in LV and Rho)
