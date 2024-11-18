@@ -1,29 +1,29 @@
 # %%
 # Import libraries
-import pyodbc      # Connect to SQL Servers
-# Pandas for lv management
-import pandas as pd
+# Time for error handling
+import datetime as datetime
 # Library to deal with date objects
 from datetime import date
 # Library to deal with differences between 2 dates (for dates between today and expected collection dates)
 from datetime import timedelta
-# Time for error handling
-import datetime as datetime
+
+# Pandas for lv management
+import pandas as pd
+import pyodbc  # Connect to SQL Servers
 
 if __name__ == "__main__":
     print("Starting expectedCollected_v1...")
+
     # Connect to SQL server to error handling
-    # Use below connection string when running in your IDE
     cnex = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};'
-                          'Server=<ServerName>;Database=<DatabaseName>;'
-                          'Trusted_Connection=<ConnectionType>;')
+                          'Server=DCT-SQL-01;Database=InfoDB;'
+                          'Trusted_Connection=yes;')
     cursor = cnex.cursor()
 
     # Connect to DIVE and run query
-    # Use below connection string when running in your IDE
     cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};'
-                          'Server=<ServerName>;Database=<DatabaseName>;'
-                          'Trusted_Connection=<ConnectionType>;')
+                          'Server=DCT-SQL-01;Database=DAVE;'
+                          'Trusted_Connection=yes;')
 
     # Retrieve Data
     query = "SELECT * FROM rpt.vw_LabVantageVisits WHERE studynum='ITN080AI' AND barcode NOT LIKE '%-10_'"
@@ -46,17 +46,19 @@ if __name__ == "__main__":
     ORDER BY b.[Visit Date]
     '''
 
+    errorCount = 0  # used for SQL error Logging
     try:
         rho = pd.read_sql(query2, cnxn)
 
         # %%
         lv["specimentype"] = lv["specimentype"].str.title()
 
-        # %%
 
+        # %%
 
         def pid_from_screening_identifier(rho_screening_identifier):
             return rho_screening_identifier[-5:]
+
 
         rho["Participant ID"] = rho.apply(lambda x: pid_from_screening_identifier(x["RHO Screening Identifier"]),
                                           axis=1)
@@ -127,7 +129,7 @@ if __name__ == "__main__":
         unique_pids_in_lv = list(lv["Participant"].unique())
         unique_pids_in_lv.sort()
 
-        unique_pids = list(set(unique_pids_in_lv+unique_pids_in_rho))
+        unique_pids = list(set(unique_pids_in_lv + unique_pids_in_rho))
 
         # %%
         specimen_type = ["Serum-Clot", "Urine Pellet", "Urine Super", "Whole Blood"]
@@ -137,12 +139,12 @@ if __name__ == "__main__":
 
         # For every participant that has a mechanistic visit...
         for participant in unique_pids:
+            # Get data specific to that participant
+            data_for_participant = lv[lv["Participant"] == participant]
+
             # If there is no data for the PID in LV, skip it
             if data_for_participant.empty == True:
                 continue
-
-            # Get data specific to that participant
-            data_for_participant = lv[lv["Participant"] == participant]
 
             # Get the site for the participant
             site_code_for_participant = None
@@ -157,7 +159,7 @@ if __name__ == "__main__":
                 rho_pid_with_mech_visit[rho_pid_with_mech_visit["Participant ID"] ==
                                         participant]["Visit Number"].unique()
             )
-            participant_visits = list(set(participant_visits_lv+participant_visits_rho))
+            participant_visits = list(set(participant_visits_lv + participant_visits_rho))
             if None in participant_visits:
                 participant_visits.remove(None)
 
@@ -199,7 +201,7 @@ if __name__ == "__main__":
                         zero_df.loc[len(zero_df)] = append_list
                     else:
                         visit_0 = "0" + str(participant_cohort)
-                        expected_date_v0 =\
+                        expected_date_v0 = \
                             data_for_participant[(data_for_participant["visitnum"] ==
                                                   visit_0)]["CollectionDate"].unique()[0]
                         if participant_cohort == "A":
@@ -217,7 +219,7 @@ if __name__ == "__main__":
 
             has_DV = ("DVA" in participant_visits) or ("DVB" in participant_visits)
             if has_DV:
-                dv_visit_name = "DV"+participant_cohort
+                dv_visit_name = "DV" + participant_cohort
                 expected_date_dv = \
                     data_for_participant[(data_for_participant["visitnum"] == dv_visit_name)]["CollectionDate"].unique()
                 if len(expected_date_dv) == 0:
@@ -270,9 +272,9 @@ if __name__ == "__main__":
                              (zero_df["specimentype"].isin(["Urine Pellet", "Urine Super", "Whole Blood"]))].index,
                      inplace=True)
 
+
         # %%
         # make an alert going into the details of count
-
 
         def count_alert(specimen, visit, count, participant):
             if specimen == "Serum-Clot":
@@ -351,7 +353,7 @@ if __name__ == "__main__":
 
 
         def overdue(tdy, edate):
-            return abs((edate-tdy).days)
+            return abs((edate - tdy).days)
 
 
         zero_df["overdue"] = zero_df.apply(lambda x: overdue(date.today(), x["expectDate"]), axis=1)
@@ -397,13 +399,14 @@ if __name__ == "__main__":
             "72453": "UCSF"
         }
 
+
         # Function that creates message we want to send
 
-
         def mssg(s_ab, cde, ID, spec, vis, viswk, tdy, edate):
-            dte = abs((edate-tdy).days)
+            dte = abs((edate - tdy).days)
             return '''ITN080AI REBOOT - {}/{} - PID {}; {} specimens @ Visit {} (Week {}) {} 
             days overdue for collection (from expected visit)'''.format(s_ab, cde, ID, spec, vis, viswk, dte)
+
 
         # Apply the message function
 
@@ -443,7 +446,8 @@ if __name__ == "__main__":
 
     except Exception as e:
         print("Error: ", str(e))
-        
+        errorCount = + 1
+
         # Log Error to SQL Server
         '''
         Parameters:
@@ -464,13 +468,11 @@ if __name__ == "__main__":
                   '0E984725-C51C-4BF4-9960-E1C80E27ABA0',
                   'Load_ExpectedCollectedShipped_ToReportingServer',
                   'expectedCollected_v1 ETL',
-                  str(e.__class__),
-                  str(e),
-                  datetime.datetime.now().isoformat().encode('utf-8'),
-                  str(datetime.datetime.now())[:19].replace('-', '/'))
-        cursor.execute("{CALL [dbo].[SSIS_Process_LogHistory] (?,?,?,?,?,?,?,?,?,?)}", params)
+                  errorCount,
+                  str(e))
+        cursor.execute("{CALL [dbo].[SSIS_Process_LogHistory] (?,?,?,?,?,?,?,?)}", params)
         cnex.commit()
-    
+
     cnxn.close()
 
     print("Processing Complete. expectedCollected_v1 Processed ")
