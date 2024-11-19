@@ -66,11 +66,11 @@ def remove_exceptions_participant(np,table,ct,chrt):
         for except_visit in cohort_exceptions:
             exception_indicies = table[(table["Sample Type"] == except_visit[0]) & (table["Visit Number"] == except_visit[1]) & (table["Cohort"] == chrt)].index.tolist()
             # table[(table["Sample Type"] == except_visit[0]) & (table["Visit Number"] == except_visit[1])]["Percent"] = np.nan
-            table.loc[exception_indicies,["Collected"]] = False
+            table.loc[exception_indicies,["Collected"]] = np.nan
     else:
         for except_visit in ct.exceptions:
             exception_indicies = table[(table["Sample Type"] == except_visit[0]) & (table["Visit Number"] == except_visit[1])].index.tolist()
             # table[(table["Sample Type"] == except_visit[0]) & (table["Visit Number"] == except_visit[1])]["Percent"] = np.nan
-            table.loc[exception_indicies,["Collected"]] = False
+            table.loc[exception_indicies,["Collected"]] = np.nan
     return table
 

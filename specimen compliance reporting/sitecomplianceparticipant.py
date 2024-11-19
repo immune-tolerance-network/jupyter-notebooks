@@ -73,6 +73,15 @@ if __name__ == "__main__":
                 rho_data_pid = rho_data[rho_data["Participant ID"] == pid]
                 rho_pid_visits = list(rho_data_pid["Visit Number"].unique())
                 pid_visits = list(set(lv_pid_visits + rho_pid_visits))
+
+                every_vis_for_study = trial.visits
+                # Remove visits not expected
+
+                if type(every_vis_for_study) == dict:
+                    every_vis_for_study = sum(every_vis_for_study.values(),[])
+                    
+                pid_visits = [vis for vis in pid_visits if vis in every_vis_for_study]
+
                 # TODO: get cohort of PID
                 chrt_lst = list(lv_data_pid["Cohort"].unique())
                 chrt_lst = [x for x in chrt_lst if x != None]
