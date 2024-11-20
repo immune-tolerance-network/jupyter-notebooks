@@ -178,7 +178,7 @@ if __name__ == "__main__":
                         ) VALUES
                         (?,?,?,?,?,?,?,?,?,?)'''
         
-        tuples = [(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7],str(i[8]),i[9]) for i in output.values.tolist()]
+        tuples = [(i[0],i[1],i[2],str(i[3]),str(i[4]),i[5],i[6],i[7],str(i[8]),i[9]) for i in output.values.tolist()]
 
 
         crsr.executemany(insert_string,tuples)
