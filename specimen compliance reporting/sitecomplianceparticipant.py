@@ -101,6 +101,7 @@ if __name__ == "__main__":
 
                     # Get the site code
                     site_code_options = list(lv_data_pid["sitecode"].unique())
+                    site_code_options += list(rho_data_pid["Site Code"].unique())
                     if len(site_code_options) > 0:
                         sitecode = site_code_options[0]
                     else:
@@ -116,6 +117,10 @@ if __name__ == "__main__":
 
                         # Get the collection date
                         collection_dates = list(lv_data_pid_visit_spc["CollectionDate"])
+                        if len(collection_dates) == 0:
+                            collection_dates += list(rho_data_pid[rho_data_pid["Visit Number"] == visit]["Visit Date"])
+                        if len(collection_dates) == 0:
+                            collection_dates += list(lv_data_pid[(lv_data_pid["visitnum"] == visit)]["CollectionDate"].unique())
                         collection_dates = [dte for dte in collection_dates if dte != None]
                         collection_dates.sort()
                         if len(collection_dates) > 0:
