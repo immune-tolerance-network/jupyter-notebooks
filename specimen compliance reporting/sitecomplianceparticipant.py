@@ -101,6 +101,7 @@ if __name__ == "__main__":
 
                     # Get the site code
                     site_code_options = list(lv_data_pid["sitecode"].unique())
+                    site_code_options += list(rho_data_pid["Site Code"].unique())
                     if len(site_code_options) > 0:
                         sitecode = site_code_options[0]
                     else:
@@ -116,6 +117,10 @@ if __name__ == "__main__":
 
                         # Get the collection date
                         collection_dates = list(lv_data_pid_visit_spc["CollectionDate"])
+                        if len(collection_dates) == 0:
+                            collection_dates += list(rho_data_pid[rho_data_pid["Visit Number"] == visit]["Visit Date"])
+                        if len(collection_dates) == 0:
+                            collection_dates += list(lv_data_pid[(lv_data_pid["visitnum"] == visit)]["CollectionDate"].unique())
                         collection_dates = [dte for dte in collection_dates if dte != None]
                         collection_dates.sort()
                         if len(collection_dates) > 0:
@@ -178,7 +183,7 @@ if __name__ == "__main__":
                         ) VALUES
                         (?,?,?,?,?,?,?,?,?,?)'''
         
-        tuples = [(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7],i[8],i[9]) for i in output.values.tolist()]
+        tuples = [(i[0],i[1],i[2],str(i[3]),str(i[4]),i[5],i[6],i[7],str(i[8]),i[9]) for i in output.values.tolist()]
 
 
         crsr.executemany(insert_string,tuples)

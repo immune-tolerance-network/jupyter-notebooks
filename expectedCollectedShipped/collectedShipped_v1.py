@@ -1,27 +1,25 @@
 # %%
 # Import libraries
-import pyodbc
-import pandas as pd
-from datetime import date
-import re
 # Time for error handling
 import datetime as datetime
+import re
+from datetime import date
 
+import pandas as pd
+import pyodbc
 
 if __name__ == "__main__":
     print("Starting collectedShipped_v1...")
     # Connect to SQL server to error handling
-    # Use below connection string when running in your IDE
     cnex = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};'
-                          'Server=<ServerName>;Database=<DatabaseName>;'
-                          'Trusted_Connection=<ConnectionType>;')
+                          'Server=DCT-SQL-01;Database=InfoDB;'
+                          'Trusted_Connection=yes;')
     cursor = cnex.cursor()
 
     # Connect to DIVE and run query
-    # Use below connection string when running in your IDE
     cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};'
-                          'Server=<ServerName>;Database=<DatabaseName>;'
-                          'Trusted_Connection=<ConnectionType>;')
+                          'Server=DCT-SQL-01;Database=DAVE;'
+                          'Trusted_Connection=yes;')
 
     shipments = {}
     collections = {}
@@ -34,6 +32,7 @@ if __name__ == "__main__":
              "Activity,ShipDate,airbillnumber,ShipmentID" \
              " FROM rpt.vw_LabVantageShipments WHERE StudyNum='ITN080AI'"
 
+    errorCount = 0  # used for SQL error logging
     try:
         collections = pd.read_sql(query1, cnxn)
         shipments = pd.read_sql(query2, cnxn)
@@ -93,7 +92,7 @@ if __name__ == "__main__":
                 # print(collections[collections["barcode"]==i].columns)
                 alert = None
                 message_components = collections[collections["barcode"] == i].values.flatten().tolist()
-                days_since = message_components[4]-date.today()
+                days_since = message_components[4] - date.today()
                 message = "{0}-{1}: Tube with barcode {2} has been collected but not shipped!" \
                           " It is for participant {3}" \
                           " at site {4} for visit {5} collected on {6}" \
@@ -150,6 +149,7 @@ if __name__ == "__main__":
 
     except Exception as e:
         print("Error: ", str(e))
+        errorCount = + 1
 
         # Log Error to SQL Server
         '''
@@ -171,11 +171,9 @@ if __name__ == "__main__":
                   '0E984725-C51C-4BF4-9960-E1C80E27ABA0',
                   'Load_ExpectedCollectedShipped_ToReportingServer',
                   'collectedShipped_v1 ETL',
-                  str(e.__class__),
-                  str(e),
-                  datetime.datetime.now().isoformat().encode('utf-8'),
-                  str(datetime.datetime.now())[:19].replace('-', '/'))
-        cursor.execute("{CALL [dbo].[SSIS_Process_LogHistory] (?,?,?,?,?,?,?,?,?,?)}", params)
+                  errorCount,
+                  str(e))
+        cursor.execute("{CALL [dbo].[SSIS_Process_LogHistory] (?,?,?,?,?,?,?,?)}", params)
         cnex.commit()
 
     cnxn.close()
