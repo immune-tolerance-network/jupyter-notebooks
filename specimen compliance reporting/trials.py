@@ -55,7 +55,7 @@ graduate = clinical_trial(studynum = "ITN084AD",
 
 # clinical_trial object for BEAT-MS
 beat_ms = clinical_trial(studynum = "ITN077AI",
-                            visits = ['0','L1','1','2','4','6','8','10','12','PT'],
+                            visits = ['0','1','2','4','6','8','10','12','UR1','UR2','UR3','UR4','UR5','UR6','UR7','UR8','UR9','PT','L1','RL1'],
                             cohort = None,
                             specimen_types = {"Whole Blood\nPBMC":['10A','10B','10C','10D','10E','10F','10G','10H','10I','10J'],
                                             "Serum":["H"+"%02d" % i for i in list(range(1,21))],
@@ -67,7 +67,7 @@ beat_ms = clinical_trial(studynum = "ITN077AI",
                                             "Stem Cells":["SC01","SC02"]},
                             exceptions = [("Stem Cells","0"),
                                         ("CSF Transfix","1"),("CSF Super","1"),("CSF Pellet","1"),("Stem Cells","1"),
-                                        ("CSF Transfix","L1"),("CSF Super","L1"),("CSF Pellet","L1"),("Whole Blood\nPBMC","L1"),("Serum","L1"),
+                                        
                                         ("Whole Blood\nDNA Isolation","L1"),("Whole Blood\nGene Expression","L1"),
                                         ("CSF Transfix","2"),("CSF Super","2"),("CSF Pellet","2"),("Stem Cells","2"),
                                         ("CSF Transfix","4"),("CSF Super","4"),("CSF Pellet","4"),("Stem Cells","4"),
@@ -75,7 +75,19 @@ beat_ms = clinical_trial(studynum = "ITN077AI",
                                         ("CSF Transfix","8"),("CSF Super","8"),("CSF Pellet","8"),("Stem Cells","8"),
                                         ("CSF Transfix","10"),("CSF Super","10"),("CSF Pellet","10"),("Stem Cells","10"),
                                         ("Stem Cells","12"),
-                                        ("Stem Cells","PT")]
+                                        ("Stem Cells","UR1"),
+                                        ("Stem Cells","UR2"),
+                                        ("Stem Cells","UR3"),
+                                        ("Stem Cells","UR4"),
+                                        ("Stem Cells","UR5"),
+                                        ("Stem Cells","UR6"),
+                                        ("Stem Cells","UR7"),
+                                        ("Stem Cells","UR8"),
+                                        ("Stem Cells","UR9"),
+                                        
+                                        ("Stem Cells","PT"),
+                                        ("CSF Transfix","L1"),("CSF Super","L1"),("CSF Pellet","L1"),("Whole Blood\nPBMC","L1"),("Serum","L1"),
+                                        ("CSF Transfix","RL1"),("CSF Super","RL1"),("CSF Pellet","RL1"),("Whole Blood\nPBMC","RL1"),("Serum","RL1")]
                         )   
 
 # DARE APS
