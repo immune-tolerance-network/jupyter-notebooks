@@ -67,8 +67,7 @@ beat_ms = clinical_trial(studynum = "ITN077AI",
                                             "Stem Cells":["SC01","SC02"]},
                             exceptions = [("Stem Cells","0"),
                                         ("CSF Transfix","1"),("CSF Super","1"),("CSF Pellet","1"),("Stem Cells","1"),
-                                        
-                                        ("Whole Blood\nDNA Isolation","L1"),("Whole Blood\nGene Expression","L1"),
+                                                                                
                                         ("CSF Transfix","2"),("CSF Super","2"),("CSF Pellet","2"),("Stem Cells","2"),
                                         ("CSF Transfix","4"),("CSF Super","4"),("CSF Pellet","4"),("Stem Cells","4"),
                                         ("Stem Cells","6"),
@@ -86,8 +85,8 @@ beat_ms = clinical_trial(studynum = "ITN077AI",
                                         ("Stem Cells","UR9"),
                                         
                                         ("Stem Cells","PT"),
-                                        ("CSF Transfix","L1"),("CSF Super","L1"),("CSF Pellet","L1"),("Whole Blood\nPBMC","L1"),("Serum","L1"),
-                                        ("CSF Transfix","RL1"),("CSF Super","RL1"),("CSF Pellet","RL1"),("Whole Blood\nPBMC","RL1"),("Serum","RL1")]
+                                        ("CSF Transfix","L1"),("CSF Super","L1"),("CSF Pellet","L1"),("Whole Blood\nPBMC","L1"),("Serum","L1"), ("Whole Blood\nDNA Isolation","L1"),("Whole Blood\nGene Expression","L1"),
+                                        ("CSF Transfix","RL1"),("CSF Super","RL1"),("CSF Pellet","RL1"),("Whole Blood\nPBMC","RL1"),("Serum","RL1"),("Whole Blood\nDNA Isolation","RL1"),("Whole Blood\nGene Expression","RL1")]
                         )   
 
 # DARE APS
@@ -135,3 +134,97 @@ vibrant = clinical_trial(studynum="ITN091AI",
                              ('Kidney Biopsy','DSC')
                          ])
 
+# ADAPT
+adapt = clinical_trial(
+                studynum="ITN089ST",
+                visits = ['-2', '-1', '0', '8', '9','14_1', '15', '17', '18', '22', '25', '26', 'T0', 'T4','T14',  'TUN1', 'TUN2', 'TUN3', 'TUN4','103', '104', '105', '202', '203', '204', '205', '206',  'A2' ],
+                cohort = None,
+                specimen_types={"Bone Marrow":["10"+chr(letter) for letter in range(81,88)],
+                                "Lymph Node":["22A","22B"],
+                                "Serum-None":["H"+str(num).rjust(2,'0') for num in range(1,15)],
+                                "Spleen":["18A","18B","18C"],
+                                "Whole Blood":["3A"] + ["10"+chr(letter) for letter in range(65,81)]},
+                exceptions = [
+                    ('Bone Marrow','-2'),('Lymph Node','-2'),('Serum-None','-2'),('Spleen','-2'),
+                    ('Bone Marrow','-1'),('Lymph Node','-1'),('Spleen','-1'),
+                    ('Bone Marrow',' 8'),('Lymph Node',' 8'),('Spleen',' 8'),
+                    ('Bone Marrow',' 9'),('Lymph Node',' 9'),('Spleen',' 9'),
+                    ('Bone Marrow',' 17'),('Lymph Node',' 17'),('Spleen',' 17'),
+                    ('Bone Marrow',' 18'),('Lymph Node',' 18'),('Spleen',' 18'),
+                    ('Bone Marrow',' 22'),('Lymph Node',' 22'),('Spleen',' 22'),
+                    ('Bone Marrow',' 25'),('Lymph Node',' 25'),('Spleen',' 25'),
+                    ('Bone Marrow',' 26'),('Lymph Node',' 26'),('Spleen',' 26'),
+                    ('Bone Marrow',' 103'),('Lymph Node',' 103'),('Spleen',' 103'),
+                    ('Bone Marrow',' 104'),('Lymph Node',' 104'),('Spleen',' 104'),
+                    ('Bone Marrow',' 105'),('Lymph Node',' 105'),('Spleen',' 105'),
+                    ('Bone Marrow',' 202'),('Lymph Node',' 202'),('Spleen',' 202'),
+                    ('Bone Marrow',' 204'),('Lymph Node',' 204'),('Spleen',' 204'),
+                    ('Bone Marrow',' 205'),('Lymph Node',' 205'),('Spleen',' 205'),
+                    ('Bone Marrow',' 206'),('Lymph Node',' 206'),('Spleen',' 206'),
+                    ('Bone Marrow',' 14_1'),('Lymph Node',' 14_1'),('Spleen',' 14_1'),
+                    ('Bone Marrow',' T14'),('Lymph Node',' T14'),('Spleen',' T14'),
+                    ('Bone Marrow',' T4'),('Lymph Node',' T4'),('Spleen',' T4'),
+                    ('Bone Marrow',' TUN1'),('Lymph Node',' TUN1'),('Spleen',' TUN1'),
+                    ('Bone Marrow',' TUN2'),('Lymph Node',' TUN2'),('Spleen',' TUN2'),
+                    ('Bone Marrow',' TUN3'),('Lymph Node',' TUN3'),('Spleen',' TUN3'),
+                    ('Bone Marrow',' TUN4'),('Lymph Node',' TUN4'),('Spleen',' TUN4'),
+                    ('Lymph Node','0'),('Spleen','0'),
+                    ('Lymph Node','15'),('Spleen','15'),
+                    ('Lymph Node','203'),('Spleen','203'),
+                    ('Bone Marrow','A2'),('Serum-None','A2'),('Spleen','A2'),
+
+                ]
+
+)
+
+# ATTAIN
+attain = clinical_trial(
+    studynum= 'ITN090ST',
+    visits = ['0', '5', '9', '11', '13', '14', '15', 'T0', 'T3', 'T5', '105', '109', '111', 'DT0', 'TUN1', 'TUN2', 'TUN3', 'TUN4', 'TUN5', 'TUN6', 'TUN7', 'TUN8', 'TUN9', 'TUN10', '1005', '1009', '1011', '1013', '1014', '1015', '1016', '1105', '1109', '1111', '1113', '1114', '1116'],
+    cohort = None,
+    specimen_types={"Bone Marrow":["10"+chr(letter) for letter in range(81,88)],
+                    "Lymph Node":["22A","22B"],
+                    "Serum-None":["H"+str(num).rjust(2,'0') for num in range(1,15)],
+                    "Spleen":["18A","18B","18C"],
+                    "Whole Blood":["3A","51"] + ["10"+chr(letter) for letter in range(65,81)]
+                    },
+    exceptions=[('Lymph Node','0'),('Spleen','0'),
+                ('Lymph Node',' 11'),('Spleen',' 11'),
+                ('Lymph Node',' 1011'),('Spleen',' 1011'),
+                ('Bone Marrow','5'),('Lymph Node','5'),('Spleen','5'),
+                ('Bone Marrow',' 9'),('Lymph Node',' 9'),('Spleen',' 9'),
+                ('Bone Marrow',' 15'),('Lymph Node',' 15'),('Spleen',' 15'),
+                ('Bone Marrow',' 105'),('Lymph Node',' 105'),('Spleen',' 105'),
+                ('Bone Marrow',' 109'),('Lymph Node',' 109'),('Spleen',' 109'),
+                ('Bone Marrow',' 111'),('Lymph Node',' 111'),('Spleen',' 111'),
+                ('Bone Marrow',' 1005'),('Lymph Node',' 1005'),('Spleen',' 1005'),
+                ('Bone Marrow',' 1009'),('Lymph Node',' 1009'),('Spleen',' 1009'),
+                ('Bone Marrow',' 1013'),('Lymph Node',' 1013'),('Spleen',' 1013'),
+                ('Bone Marrow',' 1014'),('Lymph Node',' 1014'),('Spleen',' 1014'),
+                ('Bone Marrow',' 1015'),('Lymph Node',' 1015'),('Spleen',' 1015'),
+                ('Bone Marrow',' 1016'),('Lymph Node',' 1016'),('Spleen',' 1016'),
+                ('Bone Marrow',' 1105'),('Lymph Node',' 1105'),('Spleen',' 1105'),
+                ('Bone Marrow',' 1109'),('Lymph Node',' 1109'),('Spleen',' 1109'),
+                ('Bone Marrow',' 1111'),('Lymph Node',' 1111'),('Spleen',' 1111'),
+                ('Bone Marrow',' 1113'),('Lymph Node',' 1113'),('Spleen',' 1113'),
+                ('Bone Marrow',' 1114'),('Lymph Node',' 1114'),('Spleen',' 1114'),
+                ('Bone Marrow',' 1116'),('Lymph Node',' 1116'),('Spleen',' 1116'),
+                ('Bone Marrow',' 13'),('Lymph Node',' 13'),('Spleen',' 13'),
+                ('Bone Marrow',' 14'),('Lymph Node',' 14'),('Spleen',' 14'),
+                ('Bone Marrow',' T3'),('Lymph Node',' T3'),('Spleen',' T3'),
+                ('Bone Marrow',' T5'),('Lymph Node',' T5'),('Spleen',' T5'),
+                ('Bone Marrow',' TUN1'),('Lymph Node',' TUN1'),('Spleen',' TUN1'),
+                ('Bone Marrow',' TUN10'),('Lymph Node',' TUN10'),('Spleen',' TUN10'),
+                ('Bone Marrow',' TUN2'),('Lymph Node',' TUN2'),('Spleen',' TUN2'),
+                ('Bone Marrow',' TUN3'),('Lymph Node',' TUN3'),('Spleen',' TUN3'),
+                ('Bone Marrow',' TUN4'),('Lymph Node',' TUN4'),('Spleen',' TUN4'),
+                ('Bone Marrow',' TUN5'),('Lymph Node',' TUN5'),('Spleen',' TUN5'),
+                ('Bone Marrow',' TUN6'),('Lymph Node',' TUN6'),('Spleen',' TUN6'),
+                ('Bone Marrow',' TUN7'),('Lymph Node',' TUN7'),('Spleen',' TUN7'),
+                ('Bone Marrow',' TUN8'),('Lymph Node',' TUN8'),('Spleen',' TUN8'),
+                ('Bone Marrow',' TUN9'),('Lymph Node',' TUN9'),('Spleen',' TUN9'),
+                ('Bone Marrow','DT0'),('Serum-None','DT0'),
+                ('Spleen',' T0')
+
+                ]
+)
