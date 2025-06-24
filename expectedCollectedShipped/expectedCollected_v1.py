@@ -1,4 +1,3 @@
-# %%
 # Import libraries
 # Time for error handling
 import datetime as datetime
@@ -50,11 +49,8 @@ if __name__ == "__main__":
     try:
         rho = pd.read_sql(query2, cnxn)
 
-        # %%
+
         lv["specimentype"] = lv["specimentype"].str.title()
-
-
-        # %%
 
         def pid_from_screening_identifier(rho_screening_identifier):
             return rho_screening_identifier[-5:]
@@ -63,7 +59,6 @@ if __name__ == "__main__":
         rho["Participant ID"] = rho.apply(lambda x: pid_from_screening_identifier(x["RHO Screening Identifier"]),
                                           axis=1)
 
-        # %%
         expected_visits_for_pid = list()
         dv_visit = ""
         expected_date_weeks_from_0 = list()
@@ -79,7 +74,6 @@ if __name__ == "__main__":
 
         scheduleB = pd.DataFrame(dictionaryB)
 
-        # %%
         A_visit_names = ['0A', '1A', '2A', '3A', '4A', '7A', '10A', '13A', '17A', '18A', '19A',
                          '20A', '21A', '22A', '23A', '24A', '25A']
         A_visit_weeks = [0, 1, 2, 3, 4, 12, 24, 36, 52, 65, 78, 91, 104, 117, 130, 143, 156]
@@ -94,7 +88,6 @@ if __name__ == "__main__":
         all_visit_weeks = A_visit_weeks + B_visit_weeks
         all_visit_to_week = dict(zip(all_visit_names, all_visit_weeks))
 
-        # %%
         a_vis = [str(i) + "A" for i in scheduleA["Visit (A)"].unique()]
         a_vis.append("DVA")
         b_vis = [str(int(i)) + "B" for i in scheduleB["Visit (B)"].unique()]
@@ -106,7 +99,6 @@ if __name__ == "__main__":
 
         spectype = ["Serum-Clot", "Urine Pellet", "Urine Super", "Whole Blood"]
 
-        # %%
         dictionary = {"PID": [],
                       "visitnum": [],
                       "specimentype": [],
@@ -118,7 +110,6 @@ if __name__ == "__main__":
 
         zero_df = pd.DataFrame(dictionary)
 
-        # %%
         rho_pid_with_mech_visit = rho[rho["Visit Number"].isin(all_mechanistic_visits)]
         unique_pids_in_rho = list(rho_pid_with_mech_visit["Participant ID"].unique())
         if None in unique_pids_in_rho:
@@ -131,11 +122,7 @@ if __name__ == "__main__":
 
         unique_pids = list(set(unique_pids_in_lv + unique_pids_in_rho))
 
-        # %%
         specimen_type = ["Serum-Clot", "Urine Pellet", "Urine Super", "Whole Blood"]
-
-        # DELETE LATER ###
-        # unique_pids=['10368']
 
         # For every participant that has a mechanistic visit...
         for participant in unique_pids:
@@ -234,7 +221,7 @@ if __name__ == "__main__":
                                    participant_cohort, site_code_for_participant]
                     zero_df.loc[len(zero_df)] = append_list
 
-        # %%
+
         # Turn 10010's 1A to DVA
 
         # Drop DVA rows first
@@ -243,7 +230,7 @@ if __name__ == "__main__":
         # Rename
         zero_df.loc[((zero_df["PID"] == "10010") & (zero_df["visitnum"] == "2A")), "visitnum"] = "DVA"
 
-        # %%
+
         # Remove samples coming after DVA visits
         for i in list(zero_df["PID"].unique()):
             visits_for_pid = list(zero_df[zero_df["PID"] == i]["visitnum"].unique())
@@ -261,11 +248,11 @@ if __name__ == "__main__":
                 zero_df.drop(zero_df[(zero_df["PID"] == i) &
                                      (zero_df["expectDate"] >= dv_expected_date)].index, inplace=True)
 
-        # %%
+
         # Future Visits
         zero_df.drop(zero_df[zero_df["expectDate"] >= date.today()].index, inplace=True)
 
-        # %%
+
         # visits 1A,2A,3A where we aren't expecting certain sampletypes
         zero_df.drop(zero_df[(zero_df["visitnum"].isin(['1A', '2A', '3A'])) &
                              (zero_df["cohort"] == 'A') &
@@ -273,7 +260,7 @@ if __name__ == "__main__":
                      inplace=True)
 
 
-        # %%
+
         # make an alert going into the details of count
 
         def count_alert(specimen, visit, count, participant):
@@ -358,19 +345,19 @@ if __name__ == "__main__":
 
         zero_df["overdue"] = zero_df.apply(lambda x: overdue(date.today(), x["expectDate"]), axis=1)
 
-        # %%
+
         zero_df_alerts = zero_df.copy()
 
-        # %%
+
         zero_df[(zero_df["PID"] == '10368') &
                 (zero_df["visitnum"] == '13A') &
                 (zero_df['specimentype'] == "Urine Pellet")]["count"].values[0]
 
-        # %%
+
         # Samples we DO count something for
         zero_df.drop(zero_df[zero_df["count"] != 0].index, inplace=True)
 
-        # %%
+
         # Create a dictionary that ties site codes to site abbreviations
         site_abb = {
             "70125": "OSU",
@@ -421,12 +408,35 @@ if __name__ == "__main__":
                                             axis=1
                                             )
 
-        # %%
+
         zero_df.reset_index(drop=True)
         zero_df["studynum"] = "ITN080AI"
         zero_df["LastUpdateDate"] = datetime.datetime.now()
 
-        # %%
+        
+        # Remove exceptions
+        exceptions = [('10065','0A'),
+                      ('10065','7A'),
+                      ('10357','18A'),
+                      ('10357','21A'),
+                      ('10357','22A'),
+                      ('10396','18A'),
+                      ('10267','24A'),
+                      ('10497','5B'),
+                      ('10546','7B'),
+                      ('10546','9B'),
+                      ('10546','10B'),
+                      ('10546','11B'),
+                      ('10546','12B'),
+                      ('10546','13B')
+                      ]
+        for exep in exceptions:
+            zero_df.drop(zero_df[(zero_df["PID"] == exep[0]) & (zero_df["visitnum"] == exep[1])].index, inplace = True)
+
+        # Rename
+        rename = [("PID",'10357',"visitnum",'24A','25A')]
+        for ren in rename:
+            zero_df.loc[((zero_df[ren[0]] == ren[1]) & (zero_df[ren[2]] == ren[3])),ren[2]] = ren[4]
 
         crsr = cnxn.cursor()
 
