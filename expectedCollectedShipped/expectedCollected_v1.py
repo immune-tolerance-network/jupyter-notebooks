@@ -179,18 +179,29 @@ if __name__ == "__main__":
                     count = len(data_for_participant[(data_for_participant["visitnum"] == visit) &
                                                      (data_for_participant["specimentype"] == specimen)])
                     if visit == "0A" or visit == "0B":
-                        expected_date = \
-                            data_for_participant[(data_for_participant["visitnum"] ==
-                                                  visit)]["CollectionDate"].unique()[0]
+                        date_in_STS = data_for_participant[(data_for_participant["visitnum"] ==
+                                                    visit)]["CollectionDate"].unique()
+                        expected_date = None
+                        if len(date_in_STS) == 0:
+                            expected_date = rho[(rho["Participant ID"] == participant) & (rho["Visit Number"] == visit)]["Visit Date"].unique()[0]
+                        else:
+                            expected_date = data_for_participant[(data_for_participant["visitnum"] ==
+                                                    visit)]["CollectionDate"].unique()[0]
                         # print(participant,visit,specimen,count,expected_date)
                         append_list = [participant, visit, specimen, count, expected_date, participant_cohort,
                                        site_code_for_participant]
                         zero_df.loc[len(zero_df)] = append_list
                     else:
                         visit_0 = "0" + str(participant_cohort)
-                        expected_date_v0 = \
+                        date_in_STS = data_for_participant[(data_for_participant["visitnum"] ==
+                                                    visit_0)]["CollectionDate"].unique()
+                        expected_date_v0 = None
+                        if len(date_in_STS) == 0:
+                            expected_date_v0 = rho[(rho["Participant ID"] == participant) & (rho["Visit Number"] == visit_0)]["Visit Date"].unique()[0]
+                        else:
+                            expected_date_v0 = \
                             data_for_participant[(data_for_participant["visitnum"] ==
-                                                  visit_0)]["CollectionDate"].unique()[0]
+                                                    visit_0)]["CollectionDate"].unique()[0]
                         if participant_cohort == "A":
                             expected_date_weeks_from_0 = timedelta(weeks=visit_to_week_A[visit])
                         elif participant_cohort == "B":
