@@ -6,7 +6,7 @@ from datetime import datetime
 # Import scripts
 import querying
 import create_result_df
-from trials import reboot,reveal,graduate,beat_ms,vibrant,dare_aps
+from trials import reboot,reveal,graduate,beat_ms,vibrant,dare_aps,t1des
 
 
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
                                  "Sample Type","Collected","CollectionDate"])
 
     # Create a list of trials
-    clinical_trials = [reboot,reveal,graduate,beat_ms,vibrant,dare_aps]
+    clinical_trials = [reboot,reveal,graduate,beat_ms,vibrant,dare_aps,t1des]
     
     # For each clinical trial
     errorCount = 0   #used for error logging to SQL
@@ -160,7 +160,17 @@ if __name__ == "__main__":
                 output_append = create_result_df.remove_exceptions_participant(np,output_append,trial,None)
                 #output_append.drop(columns='Percent',inplace=True)
                 output = pd.concat([output,output_append])
-            
+                
+        # Handle the Baylor/MDAnderson exception
+        # get sub-df where site is Baylor and the visitnum is L1
+        mda_output = output[(output["Study Number"] == "ITN077AI") & (output["SiteCode"] == "70013")].copy()
+        # Set the baylor data to be MDAnderson
+        mda_output["SiteCode"] = "72203"
+        # In the baylor data, if the visit is neither L1 nor RL1, set its percent to np.nan
+        mda_output.loc[~mda_output["Visit Number"].isin(["L1","RL1"]),"Collected"] = None
+        
+        output = pd.concat([output,mda_output])
+        output.loc[(output["Visit Number"].isin(["L1","RL1"])) & (output["Sample Type"] == "Stem Cells") & (output["SiteCode"] == "70013"),"Collected"] = None
             
         # output["LastUpdatedDate"] = datetime.now()
         crsr = cnxn.cursor()
