@@ -14,9 +14,8 @@ def get_lv_data(pd,cnxn,ct):
     # Rename and specify sample types only for non-graduate
     #if ct.studynum != "ITN084AD" and ct.studynum != "ITN062ST":
 
-
     if  (isinstance(ct.specimen_types,dict)) and (len(output_df) > 0): 
-        def specify_sample_type(bcde):
+        def specify_sample_type(bcde,curr_sp_tpe):
             # Turn the barcode into a list where the first entry is the kit and the second entry is the suffix
             bcde_components = bcde.split("-")
             # Get the suffix
@@ -27,9 +26,11 @@ def get_lv_data(pd,cnxn,ct):
             for s_t in specimen_type_keys:
                 if suffix in ct.specimen_types[s_t]:
                     return s_t
+            if ct.studynum == "ITN077AI" and curr_sp_tpe == 'Stem Cells':
+                return curr_sp_tpe
             return None
 
-        output_df["specimentype"] = output_df.apply(lambda x:specify_sample_type(x["barcode"]),axis = 1)
+        output_df["specimentype"] = output_df.apply(lambda x:specify_sample_type(x["barcode"],x["specimentype"]),axis = 1)
 
 
     # custom data cleaning for graduate:
@@ -61,8 +62,32 @@ def get_lv_data(pd,cnxn,ct):
                 return pid
             
         output_df["visitnum"] = output_df.apply(lambda x: assign_visit(x["KitBarcode"],x["visitnum"]),axis = 1)
-        output_df["Participant"] = output_df.apply(lambda x: assign_pid(x["KitBarcode"],x["Participant"]),axis = 1)        
+        output_df["Participant"] = output_df.apply(lambda x: assign_pid(x["KitBarcode"],x["Participant"]),axis = 1)     
 
+    # # testing
+    # fake_data = pd.DataFrame({"studynum":["ITN077AI"],
+    #                           "Participant":["12345"],
+    #                           "KitBarcode":["123456"],
+    #                           "sitecode":["72203"],
+    #                           "CollectionDate":["2014-04-21"],
+    #                           "specimentype":["Stem Cells"],
+    #                           "visitnum":["L1"],
+    #                           "barcode":["123456-SC02"],
+    #                           "Sample Comment":["mock sample"],
+    #                           "Cohort":["Cohort 1"],
+    #                           "storagestatus":["In Circulation"],
+    #                           "storagedisposalstatus":[None],
+    #                           "Shipping Status":["Shipped"]})
+    # output_df = pd.concat([output_df,fake_data])
+
+    # Assign L1, RL1 samples entered by MDAnderson as Baylor
+    if (ct.studynum == "ITN077AI") and (len(output_df) > 0):
+        def mda_to_baylor(visitnum,spectype,sitecode):
+            if (visitnum in ["RL1","L1"] or spectype == "Stem Cells") and sitecode == "72203":
+                return "70013"
+            else:
+                return sitecode  
+        output_df["sitecode"] = output_df.apply(lambda x: mda_to_baylor(x["visitnum"],x["specimentype"],x["sitecode"]), axis = 1)
     return output_df
 
 # Get Rho data
