@@ -144,13 +144,14 @@ vibrant = clinical_trial(studynum="ITN091AI",
                              ('Kidney Biopsy','2'),('PBMC\n(Processed at PBMC Lab)','2'),('PBMC\n(Processed On-Site)','2'),("Serum",'2'),("Whole Blood DNA",'2'),("Whole Blood RNA",'2'),("Urine Pellet",'2'),
                              ('Kidney Biopsy','3'),('PBMC\n(Processed at PBMC Lab)','3'),('PBMC\n(Processed On-Site)','3'),("Serum",'3'),("Whole Blood DNA",'3'),("Whole Blood RNA",'3'),("Urine Super",'3'),("Urine Pellet",'3'),
                              ('Kidney Biopsy','4'),('PBMC\n(Processed at PBMC Lab)','4'),('PBMC\n(Processed On-Site)','4'),("Serum",'4'),("Whole Blood DNA",'4'),("Whole Blood RNA",'4'),("Urine Super",'4'),("Urine Pellet",'4'),
-                             ('Kidney Biopsy','5'),
+                             ('Kidney Biopsy','5'),("Whole Blood DNA",'5'),
                              ('Kidney Biopsy','6'),('PBMC\n(Processed at PBMC Lab)','6'),('PBMC\n(Processed On-Site)','6'),("Serum",'6'),("Whole Blood DNA",'6'),("Whole Blood RNA",'6'),("Urine Super",'6'),("Urine Pellet",'6'),
                              ('Kidney Biopsy','7'),('PBMC\n(Processed at PBMC Lab)','7'),('PBMC\n(Processed On-Site)','7'),("Serum",'7'),("Whole Blood DNA",'7'),("Whole Blood RNA",'7'),("Urine Super",'7'),("Urine Pellet",'7'),
-                             ('Kidney Biopsy','8'),
+                             ('Kidney Biopsy','8'),("Whole Blood DNA",'8'),
                              ('Kidney Biopsy','9'),('PBMC\n(Processed at PBMC Lab)','9'),('PBMC\n(Processed On-Site)','9'),("Serum",'9'),("Whole Blood DNA",'9'),("Whole Blood RNA",'9'),("Urine Super",'9'),("Urine Pellet",'9'),
                              ('Kidney Biopsy','10'),('PBMC\n(Processed at PBMC Lab)','10'),('PBMC\n(Processed On-Site)','10'),("Serum",'10'),("Whole Blood DNA",'10'),("Whole Blood RNA",'10'),("Urine Super",'10'),("Urine Pellet",'10'),
-                             ('Kidney Biopsy','12'),
+                             ("Whole Blood DNA",'11'),
+                             ('Kidney Biopsy','12'),("Whole Blood DNA",'12'),
                              ('Kidney Biopsy','13'),
                              ('Kidney Biopsy','DSC')
                          ])
@@ -249,3 +250,4 @@ attain = clinical_trial(
 
                 ]
 )
+
