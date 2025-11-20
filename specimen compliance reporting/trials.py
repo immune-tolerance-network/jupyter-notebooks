@@ -152,8 +152,8 @@ vibrant = clinical_trial(studynum="ITN091AI",
                              ('Kidney Biopsy','10'),('PBMC\n(Processed at PBMC Lab)','10'),('PBMC\n(Processed On-Site)','10'),("Serum",'10'),("Whole Blood DNA",'10'),("Whole Blood RNA",'10'),("Urine Super",'10'),("Urine Pellet",'10'),
                              ("Whole Blood DNA",'11'),
                              ('Kidney Biopsy','12'),("Whole Blood DNA",'12'),
-                             ('Kidney Biopsy','13'),
-                             ('Kidney Biopsy','DSC')
+                             ('Kidney Biopsy','13'),("Plasma",'13'),("Whole Blood DNA",'13'),
+                             ('Kidney Biopsy','DSC'),("Whole Blood DNA",'DSC')
                          ])
 
 # ADAPT
