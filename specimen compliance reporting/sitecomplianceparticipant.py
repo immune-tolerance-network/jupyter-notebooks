@@ -171,7 +171,14 @@ if __name__ == "__main__":
         
         output = pd.concat([output,mda_output])
         output.loc[(output["Visit Number"].isin(["L1","RL1"])) & (output["Sample Type"] == "Stem Cells") & (output["SiteCode"] == "70013"),"Collected"] = None
-            
+        
+        # Make ITN080AI's 10357's V24A to V25A
+        # Remove rows where the study number is ITN080AI, Visit number is 24A, PID is 10357
+        reboot_10357_inds_to_drop = output[(output["Study Number"] == "ITN080AI") & (output["Visit Number"] == "24A") & (output["ParticipantID"] == "10357")].index
+        output.drop(reboot_10357_inds_to_drop,inplace=True)
+        # Make Collected = True where the rows are study number is ITN080AI, Visit number is 25A, PID is 10357
+        output.loc[(output["Study Number"] == "ITN080AI") & (output["Visit Number"] == "25A") & (output["ParticipantID"] == "10357"),"Collected"] = True
+        
         # output["LastUpdatedDate"] = datetime.now()
         crsr = cnxn.cursor()
         crsr.execute('''TRUNCATE TABLE [DAVE].[input].[SiteCollectionComplianceParticipant]''')
