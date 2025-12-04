@@ -1,10 +1,11 @@
 # Import libraries
-import configparser
-
 import pandas as pd
 import numpy as np
 import pyodbc
 from datetime import datetime
+
+# Import Secrets
+import configparser
 
 # Import scripts
 import querying
