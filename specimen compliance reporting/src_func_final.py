@@ -1,4 +1,6 @@
 # Import libraries
+import configparser
+
 import pandas as pd
 import numpy as np
 import pyodbc
@@ -13,18 +15,31 @@ from trials import reboot,reveal,graduate,beat_ms,vibrant,dare_aps
 
 if __name__ == "__main__":
     print("Starting SRC Reporting Script (src_func_final.py)...")
+    configFilePath = r'C:\app\lib\CTG_reporting.ini'
+
+    config = configparser.ConfigParser()
+    config.read(configFilePath)
+
+    # Access nested items
+    ErrorLogServer = config.get('ErrorLog','ServerName')
+    ErrorLogDB = config.get('ErrorLog','DBName')
+    ErrorLogConnType = config.get('ErrorLog','ConnectionType')
+    DataServer = config.get('Data','ServerName')
+    DataDB = config.get('Data','DBName')
+    DataConnType = config.get('Data','ConnectionType')
+
 
     # Connect to SQL Server for Error Reporting
     cnex = pyodbc.connect(('DRIVER={ODBC Driver 17 for SQL Server};'
-                           'Server=<ServerName>;Database=<DatabaseName>;'
-                           'Trusted_Connection=<ConnectionType>;'))
+                           f'Server={ErrorLogServer};Database={ErrorLogDB};'
+                           f'Trusted_Connection={ErrorLogConnType};'))
 
     cursor = cnex.cursor()
 
-    # Connect to DIVE and run queries
+    # Connect to SQL Server to retrieve data and run queries
     cnxn = pyodbc.connect(('DRIVER={ODBC Driver 17 for SQL Server};'
-                           'Server=<ServerName>;Database=<DatabaseName>;'
-                           'Trusted_Connection=<ConnectionType>;'))
+                           f'Server={DataServer};Database={DataDB};'
+                           f'Trusted_Connection={DataConnType};'))
 
     
     # A list of clinical trial objects to iterate through:
