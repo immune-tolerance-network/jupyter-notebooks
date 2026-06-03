@@ -4,7 +4,7 @@ def get_lv_data(pd,cnxn,ct):
     output_df = pd.read_sql(lv_query,cnxn)
 
     output_df = output_df[['studynum',  'Participant', 'KitBarcode','sitecode',
-                            'CollectionDate',  'specimentype',
+                            'CollectionDate', 'tubetype', 'specimentype',
                             'visitnum', 'barcode', 'Sample Comment', 'Cohort', 'storagestatus',
                             'storagedisposalstatus', 'Shipping Status']]
     output_df = output_df[~output_df["storagedisposalstatus"].isin(['lostOrDamaged', 'Missing'])]
@@ -64,6 +64,10 @@ def get_lv_data(pd,cnxn,ct):
         output_df["visitnum"] = output_df.apply(lambda x: assign_visit(x["KitBarcode"],x["visitnum"]),axis = 1)
         output_df["Participant"] = output_df.apply(lambda x: assign_pid(x["KitBarcode"],x["Participant"]),axis = 1)     
 
+
+             
+
+
     # # testing
     # fake_data = pd.DataFrame({"studynum":["ITN077AI"],
     #                           "Participant":["12345"],
@@ -88,6 +92,9 @@ def get_lv_data(pd,cnxn,ct):
             else:
                 return sitecode  
         output_df["sitecode"] = output_df.apply(lambda x: mda_to_baylor(x["visitnum"],x["specimentype"],x["sitecode"]), axis = 1)
+
+    output_df.to_excel("test_2.xlsx",index = False)
+    
     return output_df
 
 # Get Rho data
@@ -203,28 +210,17 @@ def get_rho_data_participant(pd,cnxn,ct):
 
     # If there is/n't multiple cohorts for the study
     if ct.studynum != "ITN091AI":
-        rho_query = '''SELECT DISTINCT a.[ADINFC STUDYID],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID],c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening],
-                        d.[Site Code],b.[Visit Date]
-                    FROM   [rpt].[Participant] a
-                    JOIN   [rpt].[ParticipantActivity] b
-                        ON     a.[ParticipantKey] = b.[ParticipantKey]
-                        AND    b.[Activity] IN ('Visit','UnscheduledVisit')
-                    JOIN   [rpt].[Visit] c
-                        ON     b.[VisitKey] = c.[VisitKey]
-                    JOIN   [rpt].[Site] d
-                        ON     a.[SiteKey] = d.[SiteKey]
-                    WHERE  a.[ADINFC STUDYID] = '{}' '''.format(ct.studynum)
+        rho_query = '''SELECT DISTINCT s.[Study Number],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID],c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening],  d.[Site Code],b.[Visit Date] FROM   [rpt].[Participant] a JOIN   [rpt].[Study]       s ON    a.[StudyKey] = s.[StudyKey]JOIN   [rpt].[ParticipantActivity] b
+    ON     a.[ParticipantKey] = b.[ParticipantKey]
+    AND    b.[Activity] IN ('Visit','UnscheduledVisit')JOIN   [rpt].[Visit] c
+    ON     b.[VisitKey] = c.[VisitKey]JOIN   [rpt].[Site] d
+    ON     a.[SiteKey] = d.[SiteKey] WHERE  s.[Study Number] = '{}' '''.format(ct.studynum)
     elif ct.studynum == "ITN091AI":
-        rho_query = '''SELECT DISTINCT a.[ADINFC STUDYID],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID],c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening],
-                d.[Site Code],b.[Visit Date]
-            FROM   [rpt].[Participant] a
-            JOIN   [rpt].[ParticipantActivity] b
-                ON     a.[ParticipantKey] = b.[ParticipantKey]
-                AND    b.[Activity] IN ('Visit','UnscheduledVisit')
-            JOIN   [rpt].[Visit] c
-                ON     b.[VisitKey] = c.[VisitKey]
-            JOIN   [rpt].[Site] d
-                ON     a.[SiteKey] = d.[SiteKey]
+        rho_query = '''SELECT DISTINCT s.[Study Number],a.[RHO Screening Identifier],a.[Cohort],a.[Participant ID],c.VisitKey, c.[Visit Number],c.[Visit Ordinal],c.[DaysPostScreening],  d.[Site Code],b.[Visit Date] FROM   [rpt].[Participant] a JOIN   [rpt].[Study]       s ON    a.[StudyKey] = s.[StudyKey]JOIN   [rpt].[ParticipantActivity] b
+    ON     a.[ParticipantKey] = b.[ParticipantKey]
+    AND    b.[Activity] IN ('Visit','UnscheduledVisit')JOIN   [rpt].[Visit] c
+    ON     b.[VisitKey] = c.[VisitKey]JOIN   [rpt].[Site] d
+    ON     a.[SiteKey] = d.[SiteKey] 
             WHERE  a.[StudyKey] = '3487' '''
 
     # Turn query results into a dataframe
@@ -265,3 +261,61 @@ def get_rho_data_participant(pd,cnxn,ct):
 
 
     return output_df
+
+
+def get_biorepo_data(pd,cnxn,ct):
+    # Query data
+    # Select only relevant columns
+    query = """SELECT DataSource,
+                        DataType,
+                        Project,
+                        StudyNum,[StudyNum (STS)],
+                        [Group],
+                        Division,
+                        SiteID,[SiteID (STS)],
+                        ParticipantID,[ParticipantID (STS)],
+                        ScreeningID,
+                        VisitNum,[VisitNum (STS)],
+                        TrunkBarcode,
+                        Originating_ID,
+                        ITN_barcode,
+                        ISISS_RegistrationNumber,
+                        CollectionDate,[CollectionDate (STS)],
+                        SpecimenType,[SpecimenType (STS)], 
+                        TubeType,[TubeType (STS)],
+                        ReceivedDate,InShipmentID, InTrackNum, ParentID FROM DAVE.rpt.vw_SpecimenRepositoryAccession
+                WHERE StudyNum = '{}' """.format(ct.studynum)
+    # Turn query results into a dataframe
+    output_df = pd.read_sql(query,cnxn)
+
+    return output_df
+
+def get_lv_shipment_data(pd,cnxn,ct):
+    query = """SELECT * FROM DAVE.lv.STS WHERE StudyNumber = '{}' AND History = '0'""".format(ct.studynum)
+    output_df = pd.read_sql(query,cnxn)
+    # last_storage_loc = pd.DataFrame(columns = output_df.columns)
+    # barcodes = list(output_df["Barcode"].unique())
+    # for bcde in barcodes:
+    #     print(bcde)
+    #     bcde_df = output_df[output_df["Barcode"] == bcde]
+    #     bcde_df.sort_values(by="LastChgDateTime")
+    #     bcde_df = bcde_df.iloc[[-1]]
+    #     last_storage_loc = pd.concat([last_storage_loc,bcde_df],ignore_index = True)
+    
+    output_df["current location"] =output_df["Freezer"] + '/' + output_df["Box"] + "/" +output_df["Location"]
+    print(output_df.columns)
+    return output_df
+
+
+# def get_lv_shipment_data_pointer(pd,cnxn,ct):
+#     query = """SELECT * FROM DAVE.lv.STS WHERE StudyNumber = '{}' ORDER BY Barcode,LastChgDateTime """.format(ct.studynum)
+#     output_df = pd.read_sql(query,cnxn)
+#     last_storage_loc = pd.DataFrame(columns = output_df.columns)
+#     i = 0
+#     j = 1
+#     while j < len(output_df)
+
+    
+#     last_storage_loc["current location"] =last_storage_loc["Freezer"] + '/' + last_storage_loc["Box"] + "/" +last_storage_loc["Location"]
+
+#     return last_storage_loc
