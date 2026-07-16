@@ -198,6 +198,10 @@ if __name__ == "__main__":
                     & (output["Visit Number"] == i[1])
                     & (output["Sample Type"] == "Whole Blood\nTranscriptomics"),"Collected"] = True
 
+        # drop UMinn 3B rows
+        uminn_3b_drop = output[(output["Study Number"] == 'ITN080AI') & (output["Visit Number"] == '3B') & (output["ParticipantID"] == '10507')].index
+        output.drop(uminn_3b_drop,inplace=True)
+
         # output["LastUpdatedDate"] = datetime.now()
         crsr = cnxn.cursor()
         crsr.execute('''TRUNCATE TABLE [DAVE].[input].[SiteCollectionComplianceParticipant]''')
