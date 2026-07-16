@@ -1,4 +1,3 @@
-# Import libraries
 import pandas as pd
 import numpy as np
 import pyodbc
@@ -191,6 +190,14 @@ if __name__ == "__main__":
         # Make Collected = True where the rows are study number is ITN080AI, Visit number is 25A, PID is 10357
         output.loc[(output["Study Number"] == "ITN080AI") & (output["Visit Number"] == "25A") & (output["ParticipantID"] == "10357"),"Collected"] = True
         
+        # set some REBOOT extra tubes to tempus tubes
+        to_change = [('10267', '25A'), ('10475', '15B'), ('10475', '13B'), ('10475', '14B'), ('10694', '8B'), ('10267', '25A'), ('10475', '15B'), ('10475', '13B'), ('10475', '14B')]
+        for i in to_change:
+            output.loc[(output["Study Number"] == "ITN080AI") 
+                    & (output["ParticipantID"] == i[0]) 
+                    & (output["Visit Number"] == i[1])
+                    & (output["Sample Type"] == "Whole Blood\nTranscriptomics"),"Collected"] = True
+
         # output["LastUpdatedDate"] = datetime.now()
         crsr = cnxn.cursor()
         crsr.execute('''TRUNCATE TABLE [DAVE].[input].[SiteCollectionComplianceParticipant]''')
