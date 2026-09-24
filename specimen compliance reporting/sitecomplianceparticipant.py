@@ -8,7 +8,7 @@ import configparser
 # Import scripts
 import querying
 import create_result_df
-from trials import reboot,reveal,graduate,beat_ms,vibrant,dare_aps,t1des
+from trials import reboot,reveal,graduate,beat_ms,vibrant,dare_aps,t1des,lynx,everest
 
 
 if __name__ == "__main__":
