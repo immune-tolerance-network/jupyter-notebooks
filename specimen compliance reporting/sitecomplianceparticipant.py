@@ -8,7 +8,7 @@ import configparser
 # Import scripts
 import querying
 import create_result_df
-from trials import reboot,reveal,graduate,beat_ms,vibrant,dare_aps,t1des,lynx,everest
+from trials import reboot,reveal,graduate,beat_ms,vibrant,dare_aps,t1des,lynx,everest,zenith
 
 
 if __name__ == "__main__":
@@ -46,7 +46,7 @@ if __name__ == "__main__":
                                  "Sample Type","Collected","CollectionDate"])
 
     # Create a list of trials
-    clinical_trials = [reboot,reveal,graduate,beat_ms,vibrant,dare_aps,t1des]
+    clinical_trials = [reboot,reveal,graduate,beat_ms,vibrant,dare_aps,t1des,lynx,everest,zenith]
     
     # For each clinical trial
     errorCount = 0   #used for error logging to SQL
