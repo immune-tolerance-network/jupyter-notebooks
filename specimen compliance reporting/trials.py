@@ -1,11 +1,13 @@
 # Define the clinical_trial class:
 class clinical_trial:
-    def __init__(self,studynum,visits,cohort,specimen_types,exceptions):
+    def __init__(self,studynum,visits,cohort,specimen_types,exceptions,non_azenta_barcodes = None):
         self.studynum = studynum
         self.visits = visits
         self.cohort = cohort
         self.specimen_types = specimen_types
         self.exceptions = exceptions
+        self.non_azenta_barcodes = non_azenta_barcodes
+
 
 # clinical_trial object for REBOOT:
 reboot = clinical_trial(studynum = "ITN080AI",
@@ -15,7 +17,7 @@ reboot = clinical_trial(studynum = "ITN080AI",
                         specimen_types = {"Serum Clot":["H"+"%02d" % i for i in list(range(1,24))],
                                             "PBMC":['10A','10B','10C','10D','10E','10F','10G','10H','10I'],
                                             "Whole Blood\nTranscriptomics":['9A','9B'],
-                                            "Whole Blood\nEpigenetic":['51','52','53','54'],
+                                            "Whole Blood\nEpigenetic":['51','52','53','54','55','56','57','58'],
                                             "Urine Supernatant":["D"+"%02d" % i for i in list(range(1,11))],
                                             "Urine Pellet":['R01','R02']},
                         exceptions = {"A":[('PBMC','1A'),('PBMC','2A'),('PBMC','3A'),
@@ -24,6 +26,8 @@ reboot = clinical_trial(studynum = "ITN080AI",
                                             ('Whole Blood\nEpigenetic','1A'),('Whole Blood\nEpigenetic','2A'),('Whole Blood\nEpigenetic','3A'),
                                             ('Whole Blood\nTranscriptomics','1A'),('Whole Blood\nTranscriptomics','2A'),('Whole Blood\nTranscriptomics','3A')],
                                         "B":[]},
+                        # destinations= None
+                                       
                         )  
 
 # clinical_trial object for REVEAL:
@@ -35,7 +39,8 @@ reveal = clinical_trial(studynum = "ITN086AI",
                                             "Whole Blood DNA":['51','52','53','54','55','56'],
                                             "PBMC":["10A","10B","10C","10D","10E","10F"],
                                             "Serum":['H01', 'H02', 'H03', 'H04', 'H05', 'H06', 'H07', 'H08', 'H09', 'H10']},
-                        exceptions = [('Skin Biopsy','3'),('Skin Biopsy','9')]
+                        exceptions = [('Skin Biopsy','3'),('Skin Biopsy','9')],
+                        # destinations=None
                         )
 
 # clinical_trial object for T1DES:
@@ -57,7 +62,11 @@ t1des = clinical_trial(studynum = "ITN066AI",
                                                          'S21', 'S22', 'S23', 'S24', 'S25', 'S26', 'S27', 'S28', 'S29', 'S30', 
                                                          'S31', 'S32', 'S33', 'S34', 'S35', 'S36', 'S37', 'S38', 'S39', 'S40', 'S41', 'S42', 'S43', 'S44'],
                                             "Gene Expression\nWhole Blood":["9A","9B","9C","9D"]},
-                            exceptions=[])
+                            exceptions=[],
+                        # destinations=None # remember that half of plasma goes to MMTT
+                        non_azenta_barcodes=["S01","S03","S05","S07","S09","S11","S13","S15","S17","S19","S21","S23","S25","S27","S29","S31","S33","S35","S37","S39","S41","S43"]
+
+)
 
 # clinical_trial object for GRADUATE
 graduate = clinical_trial(studynum = "ITN084AD",
@@ -71,7 +80,8 @@ graduate = clinical_trial(studynum = "ITN084AD",
                                         ("PBMC-Li Hep","S9"),("Plasma-Li Hep","S9"),
                                         ("Nasal Brushing","S11"),("PBMC-Li Hep","S11"),("Plasma-Li Hep","S11"),("Whole Blood","S11"),
                                         ("PBMC-Li Hep","S14"),("Plasma-Li Hep","S14"),
-                                        ] # exceptions
+                                        ], # exceptions
+                            # destinations=None
                             )    
 
 # clinical_trial object for BEAT-MS
@@ -107,7 +117,11 @@ beat_ms = clinical_trial(studynum = "ITN077AI",
                                         
                                         ("Stem Cells","PT"),
                                         ("CSF Transfix","L1"),("CSF Super","L1"),("CSF Pellet","L1"),("Whole Blood\nPBMC","L1"),("Serum","L1"), ("Whole Blood\nDNA Isolation","L1"),("Whole Blood\nGene Expression","L1"),
-                                        ("CSF Transfix","RL1"),("CSF Super","RL1"),("CSF Pellet","RL1"),("Whole Blood\nPBMC","RL1"),("Serum","RL1"),("Whole Blood\nDNA Isolation","RL1"),("Whole Blood\nGene Expression","RL1")]
+                                        ("CSF Transfix","RL1"),("CSF Super","RL1"),("CSF Pellet","RL1"),("Whole Blood\nPBMC","RL1"),("Serum","RL1"),("Whole Blood\nDNA Isolation","RL1"),("Whole Blood\nGene Expression","RL1")],
+                        # destinations={
+                        #               "CSF Transfix":"UPENN TransFix"}
+                        non_azenta_barcodes=["21A"]
+
                         )   
 
 # DARE APS
@@ -120,7 +134,15 @@ dare_aps = clinical_trial(studynum="ITN093AI",
                                           "Whole Blood RNA":['9A','9B'],
                                           "Whole Blood DNA":['40','41','42','43','44','45']},
                           exceptions=[("Whole Blood RNA",'-1'),("Whole Blood DNA",'-1'),
-                                      ("Whole Blood DNA",'4'),("Whole Blood DNA",'8'),("Whole Blood DNA",'9'),("Whole Blood DNA",'10'),("Whole Blood DNA",'11'),("Whole Blood DNA",'12'),("Whole Blood DNA",'13'),("Whole Blood DNA",'DC')]
+                                      ("Whole Blood DNA",'4'),("Whole Blood DNA",'8'),("Whole Blood DNA",'9'),("Whole Blood DNA",'10'),("Whole Blood DNA",'11'),("Whole Blood DNA",'12'),("Whole Blood DNA",'13'),("Whole Blood DNA",'DC')],
+                        # destinations={
+                        #                   "Plasma - Citrated":"APS Core Lab",
+                        #                   "Serum":["ITN Repository","APS Core Lab"]
+                                        #   "Whole Blood RNA":"ITN Repository",
+                                        #   "Whole Blood DNA":"ITN Repository"
+                                        # }
+                                          # some serum goes to APS Core Lab
+                                          non_azenta_barcodes=["S01","S02","S03","S04","S05","S06","S07","S08","S09","H01","H02","H03"]
                         )
 
 # VIBRANT
@@ -154,7 +176,19 @@ vibrant = clinical_trial(studynum="ITN091AI",
                              ('Kidney Biopsy','12'),("Whole Blood DNA",'12'),
                              ('Kidney Biopsy','13'),("Plasma",'13'),("Whole Blood DNA",'13'),
                              ('Kidney Biopsy','DSC'),("Whole Blood DNA",'DSC')
-                         ])
+                         ],
+                        #  destinations={'Kidney Biopsy':"Renal Biopsy Processing Lab"
+                        #                 #  'PBMC\n(Processed at PBMC Lab)':"PBMC Core Lab",
+                        #                 #  'PBMC\n(Processed On-Site)':"ITN Repository",
+                        #                 #  "Serum":"ITN Repository",
+                        #                 #  "Whole Blood RNA":"ITN Repository",
+                        #                 #  "Plasma":"ITN Repository",
+                        #                 #  "Whole Blood DNA":"ITN Repository",
+                        #                 #  "Urine Super": "ITN Repository",
+                        #                 #  "Urine Pellet":"ITN Repository"
+                        #                  }
+                        non_azenta_barcodes=["AE01"]
+                         )
 
 # ADAPT
 adapt = clinical_trial(
@@ -195,7 +229,8 @@ adapt = clinical_trial(
                     ('Lymph Node','203'),('Spleen','203'),
                     ('Bone Marrow','A2'),('Serum-None','A2'),('Spleen','A2'),
 
-                ]
+                ],
+
 
 )
 
@@ -251,3 +286,88 @@ attain = clinical_trial(
                 ]
 )
 
+
+# LYNX
+lynx = clinical_trial(
+    studynum="ITN102AD",
+    visits = ["0","1","2","ET"], # ET phone home
+    cohort = None,
+    specimen_types={
+        "Whole Blood":["10"+chr(letter) for letter in range(65,72)],
+        "Serum":"2A",
+        "Lymph Node\nCore Biopsy":["LN01"],
+        "Lymph Node\nFine Needle Aspirate\n(FNA)":["FN01","FN02"],
+        "Nasal Fluid": ["NF01","NF02"],
+        "Nasal Brushing":["91"],
+        "Adenoid Swab":["6A,6B"]
+    },
+    exceptions=[("Lymph Node\nCore Biopsy","0"),("Lymph Node\nFine Needle Aspirate\n(FNA)","0"),
+                ("Nasal Fluid","0"),("Nasal Brushing","0"),("Adenoid Swab","0"),
+                ("Nasal Fluid","1"),("Nasal Brushing","1"),("Adenoid Swab","1"),
+                ("Lymph Node\nCore Biopsy","ET"),("Lymph Node\nFine Needle Aspirate\n(FNA)","ET")
+
+
+                ]
+)
+
+
+# EVEREST
+everest = clinical_trial(
+    studynum="ITN101ST",
+    visits={"Donor":["LD0"],
+            "Recipient":["-2","-1",'103', '105', '107', '109', 
+                         '111', '113', '502', '503', 
+                         '201', '202', '203', '204', '208', '220', 
+                         '301', '303', '304', '305', '307', 
+                         'FCB1', 'FCB2', 'FCB3', 'FCB4', 
+                         'U1', 'U2', 'U3', 'U4', 'U5', 'U6', 'U7', 'U8', 'U9']},
+    cohort=["Donor","Recipient"],
+    specimen_types={'Donor Cells or DNA': ['DU-01'],
+                    'Blood\nHLA Typing': ['51', '52', '53', '54'],
+                    'Serum-Clot\nHLA Antibodies': ['H01', 'H02', 'H03', 'H04', 'H05'],
+                    'Whole Blood': ['10A', '10B', '10C', '10D', '10E', '10F', '10G'],
+                    'Serum-Clot': ['H6','H7','H8','H9','H10',
+                                   'H11','H12','H13','H14','H15'],
+                    'Liver Biopsy\n(Tissue)': ['A01','A02','A03','A04','A05',
+                                                'A06','A07','A08','A09','A10',
+                                                'A11','A12','A13','A14','A15',
+                    'A16','A17','A18','A19','A20','A21'],
+                    'Plasma': ['S01', 'S02', 'S03', 'S04', 'S05', 'S06', 'S07', 'S08'],
+                    'Buccal Swabs': ['6A', '6B']},
+    exceptions={"Donor":[('Liver Biopsy\n(Tissue)',"LD0"),('Serum-Clot\nHLA Antibodies',"LD0"),('Serum-Clot',"LD0"),('Plasma',"LD0"),('Donor Cells or DNA',"LD0")],
+                "Recipient":[('Liver Biopsy\n(Tissue)', '-2'), ('Whole Blood', '-2'), ('Buccal Swabs', '-2'), ('Serum-Clot', '-2'), ('Plasma', '-2'), 
+                             ('Buccal Swabs', '-1'), ('Serum-Clot\nHLA Antibodies', '-1'), ('Blood\nHLA Typing', '-1'), ('Donor Cells or DNA', '-1'), 
+                             ('Liver Biopsy\n(Tissue)', '103'), ('Whole Blood', '103'), ('Buccal Swabs', '103'), ('Blood\nHLA Typing', '103'), ('Serum-Clot', '103'), ('Plasma', '103'), ('Donor Cells or DNA', '103'), 
+                             ('Liver Biopsy\n(Tissue)', '111'), ('Whole Blood', '111'), ('Buccal Swabs', '111'), ('Blood\nHLA Typing', '111'), ('Serum-Clot', '111'), ('Plasma', '111'), ('Donor Cells or DNA', '111'), 
+                             ('Liver Biopsy\n(Tissue)', '201'), ('Whole Blood', '201'), ('Buccal Swabs', '201'), ('Blood\nHLA Typing', '201'), ('Serum-Clot', '201'), ('Plasma', '201'), ('Donor Cells or DNA', '201'), 
+                             ('Liver Biopsy\n(Tissue)', '105'), ('Buccal Swabs', '105'), ('Blood\nHLA Typing', '105'), ('Donor Cells or DNA', '105'), 
+                             ('Liver Biopsy\n(Tissue)', '109'), ('Buccal Swabs', '109'), ('Blood\nHLA Typing', '109'), ('Donor Cells or DNA', '109'), 
+                             ('Liver Biopsy\n(Tissue)', '113'), ('Buccal Swabs', '113'), ('Blood\nHLA Typing', '113'), ('Donor Cells or DNA', '113'), 
+                             ('Liver Biopsy\n(Tissue)', '202'), ('Buccal Swabs', '202'), ('Blood\nHLA Typing', '202'), ('Donor Cells or DNA', '202'), 
+                             ('Liver Biopsy\n(Tissue)', '203'), ('Buccal Swabs', '203'), ('Blood\nHLA Typing', '203'), ('Donor Cells or DNA', '203'), 
+                             ('Buccal Swabs', '107'), ('Donor Cells or DNA', '107'), ('Serum-Clot\nHLA Antibodies', '107'), ('Blood\nHLA Typing', '107'), 
+                             ('Buccal Swabs', '204'), ('Donor Cells or DNA', '204'), ('Serum-Clot\nHLA Antibodies', '204'), ('Blood\nHLA Typing', '204'), 
+                             ('Buccal Swabs', '208'), ('Donor Cells or DNA', '208'), ('Serum-Clot\nHLA Antibodies', '208'), ('Blood\nHLA Typing', '208'), 
+                             ('Liver Biopsy\n(Tissue)', '220'), ('Buccal Swabs', '220'), ('Serum-Clot\nHLA Antibodies', '220'), ('Blood\nHLA Typing', '220'), ('Donor Cells or DNA', '220'), 
+                             ('Liver Biopsy\n(Tissue)', '301'), ('Buccal Swabs', '301'), ('Serum-Clot\nHLA Antibodies', '301'), ('Blood\nHLA Typing', '301'), ('Donor Cells or DNA', '301'), 
+                             ('Liver Biopsy\n(Tissue)', '303'), ('Buccal Swabs', '303'), ('Serum-Clot\nHLA Antibodies', '303'), ('Blood\nHLA Typing', '303'), ('Donor Cells or DNA', '303'), 
+                             ('Liver Biopsy\n(Tissue)', '304'), ('Buccal Swabs', '304'), ('Serum-Clot\nHLA Antibodies', '304'), ('Blood\nHLA Typing', '304'), ('Donor Cells or DNA', '304'), 
+                             ('Liver Biopsy\n(Tissue)', '305'), ('Buccal Swabs', '305'), ('Serum-Clot\nHLA Antibodies', '305'), ('Blood\nHLA Typing', '305'), ('Donor Cells or DNA', '305'), 
+                             ('Liver Biopsy\n(Tissue)', '307'), ('Buccal Swabs', '307'), ('Serum-Clot\nHLA Antibodies', '307'), ('Blood\nHLA Typing', '307'), ('Donor Cells or DNA', '307'), 
+                             ('Liver Biopsy\n(Tissue)', '502'), ('Buccal Swabs', '502'), ('Serum-Clot\nHLA Antibodies', '502'), ('Blood\nHLA Typing', '502'), ('Donor Cells or DNA', '502'), 
+                             ('Liver Biopsy\n(Tissue)', '503'), ('Buccal Swabs', '503'), ('Serum-Clot\nHLA Antibodies', '503'), ('Blood\nHLA Typing', '503'), ('Donor Cells or DNA', '503'), 
+                             ('Buccal Swabs', 'FCB1'), ('Donor Cells or DNA', 'FCB1'), ('Blood\nHLA Typing', 'FCB1'), 
+                             ('Buccal Swabs', 'FCB2'), ('Donor Cells or DNA', 'FCB2'), ('Blood\nHLA Typing', 'FCB2'), 
+                             ('Buccal Swabs', 'FCB3'), ('Donor Cells or DNA', 'FCB3'), ('Blood\nHLA Typing', 'FCB3'), 
+                             ('Buccal Swabs', 'FCB4'), ('Donor Cells or DNA', 'FCB4'), ('Blood\nHLA Typing', 'FCB4'), 
+                             ('Liver Biopsy\n(Tissue)', 'U1'), ('Whole Blood', 'U1'), ('Buccal Swabs', 'U1'), ('Serum-Clot\nHLA Antibodies', 'U1'), ('Serum-Clot', 'U1'), ('Plasma', 'U1'), ('Donor Cells or DNA', 'U1'), 
+                             ('Liver Biopsy\n(Tissue)', 'U2'), ('Whole Blood', 'U2'), ('Buccal Swabs', 'U2'), ('Serum-Clot\nHLA Antibodies', 'U2'), ('Serum-Clot', 'U2'), ('Plasma', 'U2'), ('Donor Cells or DNA', 'U2'), 
+                             ('Liver Biopsy\n(Tissue)', 'U3'), ('Whole Blood', 'U3'), ('Buccal Swabs', 'U3'), ('Serum-Clot\nHLA Antibodies', 'U3'), ('Serum-Clot', 'U3'), ('Plasma', 'U3'), ('Donor Cells or DNA', 'U3'), 
+                             ('Liver Biopsy\n(Tissue)', 'U4'), ('Whole Blood', 'U4'), ('Buccal Swabs', 'U4'), ('Serum-Clot\nHLA Antibodies', 'U4'), ('Serum-Clot', 'U4'), ('Plasma', 'U4'), ('Donor Cells or DNA', 'U4'), 
+                             ('Liver Biopsy\n(Tissue)', 'U5'), ('Whole Blood', 'U5'), ('Buccal Swabs', 'U5'), ('Serum-Clot\nHLA Antibodies', 'U5'), ('Serum-Clot', 'U5'), ('Plasma', 'U5'), ('Donor Cells or DNA', 'U5'), 
+                             ('Liver Biopsy\n(Tissue)', 'U6'), ('Whole Blood', 'U6'), ('Buccal Swabs', 'U6'), ('Serum-Clot\nHLA Antibodies', 'U6'), ('Serum-Clot', 'U6'), ('Plasma', 'U6'), ('Donor Cells or DNA', 'U6'), 
+                             ('Liver Biopsy\n(Tissue)', 'U7'), ('Whole Blood', 'U7'), ('Buccal Swabs', 'U7'), ('Serum-Clot\nHLA Antibodies', 'U7'), ('Serum-Clot', 'U7'), ('Plasma', 'U7'), ('Donor Cells or DNA', 'U7'), 
+                             ('Liver Biopsy\n(Tissue)', 'U8'), ('Whole Blood', 'U8'), ('Buccal Swabs', 'U8'), ('Serum-Clot\nHLA Antibodies', 'U8'), ('Serum-Clot', 'U8'), ('Plasma', 'U8'), ('Donor Cells or DNA', 'U8'), 
+                             ('Liver Biopsy\n(Tissue)', 'U9'), ('Whole Blood', 'U9'), ('Buccal Swabs', 'U9'), ('Serum-Clot\nHLA Antibodies', 'U9'), ('Serum-Clot', 'U9'), ('Plasma', 'U9'), ('Donor Cells or DNA', 'U9')]}
+
+)
