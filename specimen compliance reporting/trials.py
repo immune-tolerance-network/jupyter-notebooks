@@ -371,3 +371,23 @@ everest = clinical_trial(
                              ('Liver Biopsy\n(Tissue)', 'U9'), ('Whole Blood', 'U9'), ('Buccal Swabs', 'U9'), ('Serum-Clot\nHLA Antibodies', 'U9'), ('Serum-Clot', 'U9'), ('Plasma', 'U9'), ('Donor Cells or DNA', 'U9')]}
 
 )
+
+# Zenith
+zenith = clinical_trial(studynum="ITN097AD",
+                        visits=["-1","3","10","19","25","26","27","28","Early Term"],
+                        cohort = None,
+                        specimen_types={"PBMC":['10A', '10B', '10C', '10D', '10E', '10F', '10G', '10H', '10I', '10J'],
+                                        "Serum-Clot":['H01', 'H02', 'H03', 'H04', 'H05', 'H06', 'H07', 'H08', 'H09', 'H10', 
+                                                      'H11', 'H12', 'H13', 'H14', 'H15', 'H16', 'H17', 'H18', 'H19', 'H20', 
+                                                      'H21', 'H22', 'H23', 'H24', 'H25', 'H26', 'H27', 'H28', 'H29', 'H30'],
+                                        "Salivary Sample":["YR01","YD01"],
+                                        "Whole Blood\n(K2 EDTA)":['51', '52', '53', '54', '55', '56'],
+                                        "Oral Swab":["6A"]
+                                        },
+                        exceptions=[('Whole Blood\n(K2 EDTA)', '3'), ('Whole Blood\n(K2 EDTA)', '10'), ('Whole Blood\n(K2 EDTA)', '19'), 
+                                    ('Whole Blood\n(K2 EDTA)', '25'), ('Whole Blood\n(K2 EDTA)', '26'), ('Whole Blood\n(K2 EDTA)', '27'), 
+                                    ('Whole Blood\n(K2 EDTA)', '28'), ('Whole Blood\n(K2 EDTA)', 'Early Term')]
+
+
+
+                                        )
