@@ -294,12 +294,12 @@ lynx = clinical_trial(
     cohort = None,
     specimen_types={
         "Whole Blood":["10"+chr(letter) for letter in range(65,72)],
-        "Serum":"2A",
+        "Serum":["2A"],
         "Lymph Node\nCore Biopsy":["LN01"],
         "Lymph Node\nFine Needle Aspirate\n(FNA)":["FN01","FN02"],
-        "Nasal Fluid": ["NF01","NF02"],
+        "Nasal Fluid": ["NF01","NF02","NF"],
         "Nasal Brushing":["91"],
-        "Adenoid Swab":["6A,6B"]
+        "Adenoid Swab":["6A","6B"]
     },
     exceptions=[("Lymph Node\nCore Biopsy","0"),("Lymph Node\nFine Needle Aspirate\n(FNA)","0"),
                 ("Nasal Fluid","0"),("Nasal Brushing","0"),("Adenoid Swab","0"),
@@ -309,6 +309,7 @@ lynx = clinical_trial(
 
                 ]
 )
+
 
 
 # EVEREST
